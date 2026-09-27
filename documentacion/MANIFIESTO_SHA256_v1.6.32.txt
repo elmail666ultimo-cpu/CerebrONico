@@ -1,0 +1,24 @@
+# MANIFIESTO SHA256 — v1.6.32-EVOLUCIÓN (24-sep-2026)
+# Ficheros tocados o creados en esta evolución. Verificación:
+#   sha256sum -c MANIFIESTO_SHA256_v1.6.32.txt  (desde la raíz del árbol instalado)
+
+f8fad7671bc71c86404a5931da571fb9ebebce5f98dfa9a004fe013ed50b42fe  INFORME_SANDBOX_v1.6.32.md
+16750d300c9d50f4191c87d949ee4fab207aec06d634a807a5f8035ba06fde3b  ide/backend/src/engine/metricasInferencia.ts
+e5a0fd229f0844c4266701361eac81c0bef40e689dd542b66efab63c9d8928c9  ide/backend/src/engine/syntaxGuard.ts
+5a1b8202e26118a0c2a4697ab8f7f74efbdd2bd64d761b91efb4221f22f443cf  ide/backend/server.ts
+fce69e85fd5297a3a0eb560ac6015a1a780a66eb95d86faa00acd4d297d61efd  ide/backend/src/utils/engine.ts
+685fe78c2b9669db23fe368ab82e79f881cb700ef89b472d0a827b0fda56ea45  ide/backend/src/App.tsx
+3d55049f5f48860de7237e32fbe6fccbf31cded10a02c9af7f27562e169e900a  ide/backend/src/utils/selfImprovement.ts
+a3e17acf522edcbccddb2179e7ef04564bb52ed1ecc328815b9869c69fe4ece5  ide/backend/tests/metricasInferencia.test.ts
+8a0c0f43727afdc9469d22bbb029f048b47a73c3790b1f880a69aa8f704f5075  ide/backend/tests/syntaxGuardProfundo.test.ts
+f4d99f5cf323a1f55c83f9e48d09b1e1000ad4afc9da9a359ea40cb2dc62a0de  ide/backend/tests/quirfanoPuertas.test.ts
+662468997ccd9c6a165ae12cc6a49ad9e7e6ce19822ade0789b675a4d89b5698  ide/backend/scripts/validar.mjs
+796086e20d9592415b23faa74289b73834bab3d0d1a68665ccc0811b7ef25d19  ide/backend/src/constants.ts
+d78444e96f71dda2fa65d876d2d7395678db3c1c527222e82357212935be27a0  ide/backend/index.html
+5430e1c93e3fb47e09a165e98d7aeca1c434f5932fd7b850d4e373c72301be76  ide/backend/package.json
+e3627a9cabd8898f7cd94287bf29825eae242c7be530e6332a862370fc5e84e5  ide/backend/package-lock.json
+f46a9aba69a6135efb87710bbfd8667f10a46f966fe295d541d539e17da6b8c7  ide/backend/dist/server.mjs
+818017749bceab6028f27c7651c2f01c09404739df6cc01572d094f3545522a5  ide/backend/dist/server.mjs.map
+5e85c4322edb0983f54810cbb3e2530f3780ec56df4e60f4bc231b096f736e8c  ide/backend/dist/index.html
+739ae3357ccaa7ac1ed7336af2249d1138ba91cb280664e817946e6cd30af5e0  ide/backend/dist/assets/index-DaNHkiew.js
+4077aa424613a1aa931996b1422d771cfda0eab12429eaa8311b59500188c091  ide/backend/dist/assets/index-yhZiXAI6.css

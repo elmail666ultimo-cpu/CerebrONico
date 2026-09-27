@@ -1,0 +1,11 @@
+{
+  "_comment": "Packs de herramientas EXTERNOS. Cada entrada se carga al arrancar el servidor: hace GET <url>/tools y registra las herramientas que devuelva, sin tocar código. enabled=false para desactivar.",
+  "packs": [
+    {
+      "id": "ejemplo",
+      "label": "Pack de ejemplo",
+      "url": "http://127.0.0.1:5100",
+      "enabled": false
+    }
+  ]
+}

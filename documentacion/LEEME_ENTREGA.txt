@@ -1,0 +1,333 @@
+================================================================
+  CEREBRONICO — ENTREGA v1.13.0 «ESTADO DEL SANDBOX + VOZ SIN VENTANA»
+  Mario Nicolas Quintero · 24-sep-2026
+================================================================
+
+  ESTE ZIP ES LA ENTREGA COMPLETA. UNA SOLA DESCARGA.
+  Todo lo que se ha producido está DENTRO: el código, el informe, el
+  plan, los anexos y el manifiesto de integridad. No hay nada que
+  pedir por separado.
+
+  v1.13.0 sobre v1.12.0: TRES COSAS, DOS DE ELLAS REPORTADAS POR TI.
+  1. EL ESTADO DEL SANDBOX sale del monolito (era el último bloque grande de
+     estado compartido: 35 sitios tocando una variable global). Con él, lo que
+     queda en server.ts son rutas, no dueños de datos.
+  2. LA VENTANA DE VOZ, DOMESTICADA: cuando Gemini agota la cuota, ya no se pinta
+     el JSON entero de Google encima de la conversación. Una frase corta para ti,
+     el volcado al registro, y NO se insiste (antes reintentaba 3 veces y repetía
+     el cartel en cada mensaje).
+  3. AL ARRANCAR, EL SANDBOX YA NO SALE EN ROJO: decía «fetch failed» y «pulsa Sync
+     o reinicia el sandbox» para un servicio que todavía no tenía por qué existir
+     (se levanta al abrir el preview). Ahora dice «aún no arrancado» y no cuenta
+     como fallo. Los problemas de verdad se siguen cazando.
+  Detalle de las tres en la sección 4.
+
+  v1.12.0 sobre v1.11.0: EL PRIMER ESTADO SALE DEL MONOLITO. La caché de
+  telemetría y la muestra de CPU ya no son variables sueltas: viven en
+  `server/estado/` con API propia, y con el TIEMPO INYECTADO (por eso su
+  caducidad se prueba sin esperar diez segundos). Con ellas se han movido 3
+  rutas más. server.ts: 11.518 → 11.413 líneas. Detalle en la sección 4.
+
+  v1.11.0 sobre v1.10.0: EL MONOLITO EMPIEZA A ADELGAZAR. Las 3 primeras rutas
+  (diagnóstico: salud profunda, perfil de modelo y catálogo de Ollama) ya viven
+  en `server/routers/diagnostico.ts`. server.ts pasa de 11.661 a 11.518 líneas,
+  el contrato registra la mudanza (no la pérdida) y las 3 rutas responden
+  comprobadas contra el servidor en marcha. Detalle en la sección 4.
+
+  v1.10.0 sobre v1.9.0: EL CONTRATO DE LAS 127 RUTAS. Es el primer paso de la
+  Fase 2 (partir el monolito de 11.661 líneas): sin contrato, mover bloques de
+  cientos de líneas es un acto de fe. Ahora ninguna ruta puede perderse, ningún
+  guard puede aflojarse y server.ts no puede crecer (trinquete). Incluye el
+  ORDEN DE TRABAJO por dominios para hacer la extracción. Detalle en la sección 4.
+
+  v1.9.0 sobre v1.8.0: EL WORKSPACE YA NO SE PIERDE AL PASAR DE 5 MB. Lo que
+  no cabe en localStorage se rescata al almacén grande (IndexedDB) y vuelve al
+  arrancar; y si algo no se puede guardar, el IDE LO DICE en vez de callarse
+  en la consola. Además, las lecciones aprendidas ya llegan al cerebro (la
+  deuda D9: había un endpoint que no llamaba nadie). Detalle en la sección 4.
+
+  v1.8.0 sobre v1.7.1: el sistema ya NO PUEDE DECIR QUE ALGO «FUNCIONA» SI
+  NO LO HA EJECUTADO (certeza en el idioma), explica en UNA FRASE qué es y
+  para qué sirve cada archivo tocado, y estrena la FACULTAD DE HABLAR SIN
+  QUE LE PREGUNTEN: dice lo que ya sabe, una vez, con su nivel de certeza.
+  Detalle en la sección 4.
+
+  v1.7.1 sobre v1.7.0: el FONDO DE PANTALLA admite 100 MB de verdad (no
+  sólo el número: cambia el almacenamiento), y el CONSEJO estrena el
+  registro de ejecutores que enseña —2 con ejecutor, 21 declaradas— qué
+  de lo que vota se convierte en trabajo.
+
+----------------------------------------------------------------
+  1. QUE HAY DENTRO
+----------------------------------------------------------------
+
+  ide/backend/                    La aplicación (código, pruebas, scripts)
+    server.ts                     Servidor :3000 (11.461 líneas — pendiente
+                                  de partir: es la Fase 2 del plan)
+    agent_bridge_5000.py          Puente PC :5000 — ENDURECIDO en esta versión
+    puente-permitidos.json        NUEVO: la lista blanca del puente, tuya
+    tests/seguridadPuente.test.ts NUEVO: 68 comprobaciones que ejecutan el
+                                  puente de verdad y le preguntan
+    scripts/manifiesto.mjs        NUEVO: genera y verifica el manifiesto
+    scripts/validar.mjs           La puerta: descubre y ejecuta TODAS las suites
+    src/engine/fondo.ts           Fondo: techo subido a 100 MB (v1.7.1)
+    src/engine/ejecutoresConsejo.ts  v1.7.1: acción -> ejecutor, o declaración
+    src/engine/certeza.ts         NUEVO v1.8.0: los 3 niveles de certeza
+    src/engine/vocabulario.ts     NUEVO v1.8.0: «funciona» exige haber ejecutado
+    src/engine/explicacionArtefacto.ts  NUEVO v1.8.0: una frase por artefacto
+    src/engine/autoRespuesta.ts   NUEVO v1.8.0: hablar sin que le pregunten
+    tests/voz.test.ts             v1.8.0: 75 comprobaciones de lo anterior
+    src/utils/storage.ts          v1.9.0: guardado con resultado, rescate y aviso
+    tests/persistencia.test.ts    v1.9.0: 42 comprobaciones (workspace de 5 MB+)
+    scripts/superficie.mjs        NUEVO v1.10.0: genera y verifica el contrato de rutas
+    contrato-rutas.json           NUEVO v1.10.0: las 127 rutas congeladas (generado)
+    SUPERFICIE_RUTAS.md           NUEVO v1.10.0: el orden de trabajo de la Fase 2
+    tests/superficieRutas.test.ts v1.10.0: 49 comprobaciones del contrato
+    server/routers/diagnostico.ts v1.11.0: las 3 primeras rutas extraídas
+    server/estado/telemetria.ts   NUEVO v1.12.0: la caché de telemetría, con API
+    server/estado/proceso.ts      NUEVO v1.12.0: la muestra de CPU, con tiempo inyectado
+    server/routers/telemetria.ts  NUEVO v1.12.0: telemetría y recursos (3 rutas)
+    tests/estado.test.ts          v1.12.0: 50 comprobaciones del estado (incluye sandbox)
+    server/estado/sandbox.ts      NUEVO v1.13.0: el estado del sandbox, con API
+    server/ttsErrores.ts          NUEVO v1.13.0: el error de voz, traducido a una frase
+    tests/ttsErrores.test.ts      NUEVO v1.13.0: 35 comprobaciones de la voz
+    iniciar_todo_windows.bat      Arranque completo + ABRE EL NAVEGADOR SOLO
+    probar_todo_windows.bat       NUEVO: prueba completa de un clic
+  ide/arrancar_cerebronico.bat    Lanzador maestro (ya abría el navegador)
+  PLAN_MAESTRO_V2/                El replanteo completo a nivel PRO
+    PLAN_MAESTRO_CEREBRONICO_V2_PRO.md    El plan: 8 fases, tablero, riesgos
+    ANEXO_A_EVIDENCIA_VERIFICADA.md       Cada hallazgo con fichero:línea
+    ANEXO_B_CRITERIOS_DE_ACEPTACION.md    Las puertas de cada fase
+    ANEXO_C_MAPA_OBJETIVO_Y_CONTRATOS.md  A qué módulo va cada cosa
+    tablero_pro_v2.csv                    48 paquetes de trabajo
+  INFORME_SANDBOX_v1.13.0.md      Que se hizo, con evidencia, y que NO
+  ROADMAP.md                      Estado real y continuación (regenerado)
+  MANIFIESTO_SHA256_v1.13.0.txt   498 ficheros firmados (antes: 22 a mano)
+
+----------------------------------------------------------------
+  2. COMO PROBARLO EN WINDOWS (lo rapido)
+----------------------------------------------------------------
+
+  Doble clic en:      ide\backend\probar_todo_windows.bat
+  Y cuando acabe:     ide\backend\iniciar_todo_windows.bat
+
+  El primero NO arranca la app: comprueba que todo está sano y te dice
+  el veredicto. El segundo arranca todo y abre el navegador en
+  http://127.0.0.1:3000 por sí solo.
+
+  Lo que hace probar_todo_windows.bat, en orden:
+    1. npm ci            (solo si falta node_modules; tarda unos minutos)
+    2. tsc --noEmit      tipos: debe dar 0 errores
+    3. npm run validar   las 69 suites: debe dar 0 fallos
+    4. manifiesto        los 498 ficheros: debe coincidir
+    5. resumen           y te dice si todo está verde o qué falló
+
+----------------------------------------------------------------
+  3. LA PUERTA, EJECUTADA (no citada)
+----------------------------------------------------------------
+
+  npx tsc --noEmit                 0 errores
+  npm run validar                  3724 comprobaciones · 0 fallos
+                                   69 suites · 0 sin correr
+  npm run manifiesto:verificar     498 ficheros · TODO COINCIDE
+  npm run superficie:verificar     127 rutas · CONTRATO INTACTO
+                                   6 extraídas · 121 aún en el monolito
+  npm audit --audit-level=high     0 vulnerabilidades
+  Humo real                        :3000 sirve «CerebróNico V1.13.0».
+                                   Comprobado en marcha: el sandbox sale
+                                   «aún no arrancado» (no en rojo) y la voz
+                                   con clave inválida devuelve UNA FRASE de
+                                   67 caracteres (antes ~1.000 de JSON)
+                                   puente :5000 responde shell: false
+
+----------------------------------------------------------------
+  4. QUE CAMBIO EN ESTA VERSION (resumen de 30 segundos)
+----------------------------------------------------------------
+
+  SEGURIDAD DEL PUENTE (lo importante)
+    - Ya NO se ejecuta con shell. Comando partido con shlex, metacaracteres
+      rechazados y LISTA BLANCA de binarios en puente-permitidos.json.
+    - Los nativos de Windows (dir, echo, tasklist...) siguen funcionando.
+    - Las rutas ya no pasan «tal cual»: se comprueban contra raíces
+      permitidas. Fuera de ellas: rechazo CON MOTIVO e INSTRUCCION.
+    - Guard del servidor fail-closed: sin token solo entra la propia máquina.
+    - 11 endpoints que tocaban disco ahora piden puerta.
+    - Auditoria en auditoria.jsonl de cada accion Y de cada rechazo.
+    - GET http://127.0.0.1:5000/api/seguridad/estado  publica la postura
+      en vivo (shell, lista blanca, raíces, últimas entradas).
+
+  LA PUERTA DE VERIFICACION
+    - Descubre las suites en disco: una suite nueva se ejecuta SIEMPRE,
+      aunque nadie la registre. Y si una del catálogo desaparece, es ROJO.
+    - El manifiesto ya no se escribe a mano: lo genera la máquina y cubre
+      los 498 ficheros del paquete.
+
+  EL ARRANQUE
+    - Servidor en ventana propia, espera a que :3000 RESPONDA de verdad y
+      abre el navegador solo. Si ya hay una IDE corriendo, no lanza otra.
+
+  FONDO DE PANTALLA HASTA 100 MB (v1.7.1)
+    - El techo pasa de 48 MB (gif) y 32 MB (foto) a 100 MB. El vídeo ya
+      estaba en 128 MB: «aumentar» no podía significar bajar.
+    - Y el número es REAL porque cambió el transporte: el fondo se guarda
+      como BLOB en IndexedDB, no como data URL en base64 (+33 % y una
+      cadena de 133 millones de caracteres que se comía la memoria).
+    - La imagen grande del panel ya no va a las preferencias (localStorage,
+      5 MB y pérdida silenciosa): va a IndexedDB y allí queda sólo una marca.
+    - Y de paso se arregló algo que no se veía: el selector de «imagen
+      propia» NUNCA pintaba nada, porque el fondo personalizado tiene
+      prioridad y el panel escribía en otro sitio. Ahora se aplica al
+      instante.
+    - El aviso de rendimiento (4 MB gif · 8 MB vídeo) NO se movió: sigue
+      siendo un consejo, no una aduana.
+
+  EL CONSEJO: DE VOTAR A EJECUTAR (v1.7.1 · Fase 4, primer paso)
+    - Nuevo registro `src/engine/ejecutoresConsejo.ts`: las 23 acciones,
+      cada una con ejecutor comprobable o con su declaración escrita.
+    - El número, sin adornos: 2 acciones tienen ejecutor real (calculo y
+      convertir) y 21 están declaradas, cada una diciendo QUÉ las ejecutaría.
+    - La garantía no es una promesa: el registro es un `Record<AccionConsejo>`,
+      así que una acción nueva sin ficha NO COMPILA. Y la suite comprueba que
+      cada ejecutor «real» apunta a una función que existe en el fichero que dice.
+
+  LA VOZ: CERTEZA, UNA FRASE Y HABLAR SIN QUE PREGUNTEN (v1.8.0)
+    - CERTEZA. Tres niveles y ninguno más: ejecutado · leído · sin verificar.
+      Las palabras que AFIRMAN («funciona», «verificado», «listo», «0 fallos»)
+      ahora exigen ejecución: `revisarVocabulario` avisa y propone cómo decirlo
+      sin mentir. Un texto sin ejecución detrás ya no puede sonar como uno con
+      ella. Leer NO asciende a ejecutado, y eso tiene prueba propia.
+    - UNA FRASE POR ARTEFACTO. `<ruta> — qué es: para qué sirve. Estado: X`. El
+      «qué» y el «para qué» se EXTRAEN de la cabecera del propio fichero: no los
+      redacta un modelo, porque un modelo haría que sonaran bien aunque el
+      trabajo estuviera a medias. Sin ejecución, la frase dice «solo leído: NO
+      ejecutado» — y si el fichero se atribuye más certeza de la que tiene, el
+      propio módulo lo avisa.
+    - HABLAR SIN QUE PREGUNTEN. Cuatro reglas que la suite vigila: no se inventa
+      nada, una cosa se dice UNA vez, la certeza viaja en el texto, y hay
+      presupuesto de atención (3 mensajes; con una operación en curso, solo
+      avisos). Se ve en el panel del Quirófano y en `/api/quirofano/estado`.
+    - El silencio es una respuesta: si no hay nada nuevo, no dice nada.
+
+  ESTABILIDAD: NADA SE PIERDE EN SILENCIO (v1.9.0)
+    - EL WORKSPACE YA NO SE PIERDE AL PASAR DE 5 MB. `saveJSON` avisaba por
+      consola y no devolvía nada: el IDE seguía como si hubiera guardado. Ahora
+      devuelve el resultado, y si el valor no cabe en localStorage se RESCATA al
+      almacén grande (IndexedDB) y vuelve al arrancar.
+    - Y SI NO SE PUEDE GUARDAR, SE DICE: la interfaz se suscribe a los fallos y
+      los escribe en el registro visible, con la clave, el tamaño y el motivo.
+    - LAS LECCIONES LLEGAN AL CEREBRO: `/api/brain/lesson` existía y no lo
+      llamaba nadie (deuda D9). Ahora el aprendizaje se guarda en local Y en la
+      memoria del cerebro, y el endpoint tiene guard porque escribe.
+    - La prueba de esto no lee el código: monta un localStorage y un IndexedDB
+      de prueba y EJECUTA la capa real — 5 MB desbordados, cuota llena y almacén
+      ausente, con su desenlace comprobado. 42 comprobaciones.
+
+  FASE 2: EL CONTRATO DE LAS 127 RUTAS (v1.10.0)
+    - Qué resuelve: partir `server.ts` (11.661 líneas) sin perder ni una ruta.
+      Sin contrato era un acto de fe; con contrato, cada paso se comprueba.
+    - `contrato-rutas.json` es GENERADO desde el código (127 rutas con método,
+      ruta, línea, dominio y guard). Un contrato escrito a mano se puede editar
+      para tapar la pérdida que debería detectar; generado, no.
+    - TRES CANDADOS: ruta perdida → rojo · guard perdido → rojo · server.ts que
+      crece → rojo (trinquete: la Fase 2 es partir, no añadir).
+    - `SUPERFICIE_RUTAS.md` es el ORDEN DE TRABAJO: 39 dominios con su número de
+      rutas, sus métodos y sus líneas. Empieza por los de lectura (riesgo bajo) y
+      deja `ai` y `sandbox` para el final, que son donde el monolito está más
+      enredado.
+    - Si algún día hay que añadir una ruta, el trinquete obliga a subir el
+      presupuesto A PROPÓSITO: la decisión se ve en el diff en vez de colarse.
+
+  FASE 2: LA PRIMERA EXTRACCIÓN (v1.11.0)
+    - Las 3 primeras rutas ya NO viven en el monolito: `/api/health/deep`,
+      `/api/ollama/perf` y `/api/ollama/models` están en
+      `server/routers/diagnostico.ts`. server.ts: 11.661 → 11.518 líneas.
+    - Se eligieron por RIESGO, no por tamaño: son GET, no escriben nada y no
+      tocan estado mutable del servidor. Las que sí lo tocan (`/api/telemetry/*`,
+      `/api/system/stats`) se dejan para la extracción del estado, que es su sitio.
+    - Los cuerpos se movieron TAL CUAL. Lo único que cambia es de dónde salen tres
+      valores (Ollama, RAM, núcleos), que se pasan como dependencias: si se
+      recalcularan en el módulo habría dos fuentes de verdad sobre lo mismo.
+    - El contrato detectó el movimiento y ahora lo informa como MOVIDA, no como
+      pérdida: una herramienta que confunde una mudanza con un robo se acaba
+      ignorando. Y de paso se convirtió en el marcador de progreso de la fase.
+    - Comprobado contra el servidor en marcha: las tres rutas responden (el
+      perfil de modelo completo, las 5 comprobaciones de salud, el catálogo).
+
+  FASE 2: EL ESTADO SALE DEL MONOLITO (v1.12.0) — el paso que decide la fase
+    - Mover una ruta es mover código; mover ESTADO es cambiar quién manda sobre
+      él. Eso es lo difícil de la Fase 2, y ya está hecho con la primera pieza:
+      la caché de telemetría y la muestra de CPU viven en `server/estado/` con
+      una API de tres funciones (leer, guardar, invalidar). Nadie más las toca.
+    - EL TIEMPO ENTRA POR PARÁMETRO. `muestraVigente(ahora)` en vez de leer el
+      reloj por dentro: así la caducidad de 10 s se prueba con números exactos en
+      milisegundos, en vez de durmiendo las pruebas (que es como se acaba
+      quitándolas).
+    - Y EL MÓDULO PREGUNTA, NO COGE: al sandbox no se le alcanza la variable
+      `sandboxProc`; se le pregunta «¿estás vivo?» y «¿cuál es tu PID?». Eso deja
+      escrita la API que necesitará la extracción del sandbox: este módulo es,
+      literalmente, su especificación.
+    - De paso apareció un consumidor oculto: `/api/bridge/restart` invalidaba la
+      caché escribiendo la variable. Ahora lo pide por la API (y el compilador
+      cazó que el registro se hacía antes de declarar el puerto del sandbox).
+    - server.ts: 11.518 → 11.413 líneas. Rutas fuera: 6 de 127.
+
+  ESTADO DEL SANDBOX + VOZ SIN VENTANA (v1.13.0)
+    - EL ESTADO DEL SANDBOX sale del monolito (`server/estado/sandbox.ts`): era el
+      último bloque grande de estado compartido, con 35 sitios tocando la variable.
+      Al ponerle tipos apareció un FALLO LATENTE: `spawnSandbox()` puede devolver
+      una Response HTTP cuando falla al arrancar, y el monolito la guardaba como
+      «el proceso del sandbox» (nadie lo notó porque `any` lo tapaba). Ahora solo
+      se registra lo que parece un proceso.
+    - LA VENTANA DE VOZ: el error de Gemini se traduce a una frase
+      (`server/ttsErrores.ts`) y el volcado técnico va al registro. Con cuota
+      agotada o clave inválida NO se insiste: antes reintentaba 3 veces (más
+      espera, más cuota) y el cartel volvía en cada mensaje. Ahora hay espera de
+      5 minutos y se usa la voz del navegador sin repetir el aviso.
+    - EL SANDBOX AL ARRANCAR: la comprobación de salud ya no dice «fetch failed» +
+      «pulsa Sync o reinicia el sandbox» cuando el sandbox simplemente AÚN NO HA
+      ARRANCADO (se levanta al abrir el preview). Tres desenlaces: responde (OK) ·
+      no responde y no hay proceso (informativo, no cuenta como fallo) · no
+      responde y sí hay proceso (rojo, con su remedio). Un aviso que sale siempre
+      es un aviso que se aprende a ignorar.
+
+----------------------------------------------------------------
+  5. QUE NO ESTA HECHO (dicho, no disfrazado)
+----------------------------------------------------------------
+
+  - Fase 2 (partir el monolito server.ts): EN MARCHA. Hechos el contrato de las
+    127 rutas, 6 rutas extraídas y DOS piezas de estado (telemetría/CPU y
+    sandbox: las que ataban las rutas al monolito). Quedan 121 rutas por mover y
+    ~2 semanas, con la puerta abierta en cada paso.
+  - Fases 3 a 7 (motor del chat, consejo que ejecuta, interfaz, git nativo,
+    vision): PENDIENTES. Detalle en PLAN_MAESTRO_V2.
+  - El .bat NO se ha podido ejecutar en Windows desde aqui (este entorno es
+    Linux): se ha validado de forma estatica. La prueba real es tu doble clic.
+  - No se ha hecho pentest contra el puente en marcha.
+  - La CERTEZA está aplicada a lo que el MOTOR dice de sí mismo (explicaciones,
+    voz, informes del Quirófano). Todavía NO está aplicada a todo el texto que
+    genera el modelo: eso es la Fase 3 del plan (el pipeline del chat).
+
+----------------------------------------------------------------
+  6. VERIFICAR QUE LA DESCARGA NO SE CORROMPIO (opcional)
+----------------------------------------------------------------
+
+  En la carpeta extraida, con Node instalado:
+
+      cd ide\backend
+      npm run manifiesto:verificar
+
+  Debe responder:  498 ficheros declarados · 498 en disco · TODO COINCIDE
+
+  Eso significa que los 498 ficheros que recibes son exactamente los que
+  se firmaron al empaquetar. Si algo se corrompió al descargar o al
+  extraer, te dirá QUE fichero.
+
+  node_modules NO viaja en el ZIP (ni debe): lo instala el paso 1 del
+  probador. Tampoco viaja el estado de ejecucion (.proyectos: kb.json y
+  auditoria.jsonl), que se regenera solo.
+
+================================================================
+  Regla de la casa: creer solo lo verificado contra código.
+  Nada silencioso: lo que se decide, se dice; lo que se rechaza, dice
+  por qué.
+================================================================

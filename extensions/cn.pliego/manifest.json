@@ -1,0 +1,24 @@
+{
+  "id": "cn.pliego",
+  "name": "Pliego · requisitos para crear",
+  "version": "1.0.0",
+  "description": "Convierte una idea en CREACION.md: checklist de contenido, diseño, datos, aceptaciones y riesgos, más un borrón de plan con tareas reflejo de los espejos. Lo que el modelo no pregunta, el pliego lo fija.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "pliego.panel", "title": "Pliego", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "pliego.generar", "title": "Generar pliego de creación", "slash": "pliego" } ],
+    "tools": [ {
+      "name": "cn_pliego_generar",
+      "description": "Escribe CREACION.md con checklist de requisitos y un borrador de plan a partir de la idea de lo que se va a construir. Usar al empezar cualquier creación multi-paso.",
+      "cheap": true,
+      "handler": "command:pliego.generar",
+      "parameters": { "type": "object", "properties": {
+        "idea": { "type": "string", "description": "qué se va a crear, en una o dos frases" },
+        "publico": { "type": "string", "description": "para quién es (opcional)" }
+      }, "required": ["idea"] }
+    } ]
+  }
+}

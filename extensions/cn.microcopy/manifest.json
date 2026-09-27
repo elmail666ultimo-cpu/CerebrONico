@@ -1,0 +1,23 @@
+{
+  "id": "cn.microcopy",
+  "name": "Microcopy · laboratorio de textos",
+  "version": "1.0.0",
+  "description": "Extrae los textos que ve el usuario de html/jsx/ts y mide longitud, sílabas y legibilidad Flesch; propone variantes de tono imperativo e informativo por plantilla determinista. No escribe poesía: mide.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "microcopy.panel", "title": "Microcopy", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "microcopy.ana", "title": "Analizar microcopy del workspace", "slash": "microcopy" } ],
+    "tools": [ {
+      "name": "cn_microcopy_ana",
+      "description": "Lista los textos de interfaz del proyecto con métricas (palabras, Flesch) y alternativas de tono. Usar al redactar o revisar la parte visible de una UI.",
+      "cheap": true,
+      "handler": "command:microcopy.ana",
+      "parameters": { "type": "object", "properties": {
+        "ruta": { "type": "string", "description": "archivo concreto a analizar (opcional: todos)" }
+      }, "required": [] }
+    } ]
+  }
+}

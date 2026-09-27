@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Aduana</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#a3e635}small{color:#64748b}button{background:#16233a;color:#bef264;border:1px solid #4a6d2f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Aduana <small>cn.aduana · nada sale sin huella y sin secretos</small></h4>
+<button id="go">Revisar y firmar manifiesto</button>
+<pre id="out">Escribe ENTREGA/MANIFIESTO_SHA256.txt con la convención del proyecto. Si huele a secreto, BLOQUEA.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+async function sha256(texto){
+  if(!crypto||!crypto.subtle) throw new Error("este contexto no expone crypto.subtle (se necesita https o 127.0.0.1)");
+  var buf=new TextEncoder().encode(texto);
+  var d=await crypto.subtle.digest("SHA-256",buf);
+  return Array.from(new Uint8Array(d)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");
+}
+var SECRETAS=[["nombre de archivo secreto",/(^|\/)\.env(\.|$)/i,[""]],["clave en texto",/(api[_-]?key|secret|password|token)\s*[:=]\s*["'][A-Za-z0-9+\/=_-]{12,}/gi],["clave privada",/-----BEGIN [A-Z ]*PRIVATE KEY-----/g]];
+H["aduana.revisar"]=async function(){
+  var files=((await call("workspace.getFiles"))||[]).filter(function(f){return !/^ENTREGA\//.test(f.path)&&!/node_modules|\.git\//.test(f.path);});
+  if(!files.length) return {ok:false,motivo:"workspace vacío: no hay nada que aduanar."};
+  var bloqueos=[];
+  for(const f of files){
+    for(const [regla,re] of SECRETAS){
+      re.lastIndex=0;
+      if(re.test(f.path)||re.test(String(f.content||""))) bloqueos.push({archivo:f.path,regla:regla});
+    }
+  }
+  if(bloqueos.length){
+    out("BLOQUEADO · "+bloqueos.length+" archivo(s) con materia sensible");
+    return {ok:false,motivo:"NO se firma la entrega: materia sensible en "+bloqueos.map(function(b){return b.archivo+" ("+b.regla+")";}).join(", ")+". Sácala o reemplázala por variable, y repasa."};
+  }
+  var lineas=[],bytes=0;
+  var ordenados=files.slice().sort(function(a,b){return a.path<b.path?-1:1;});
+  for(const f of ordenados){
+    var c=String(f.content||"");
+    bytes+=c.length;
+    lineas.push((await sha256(c))+"  ./"+f.path);
+  }
+  await call("workspace.writeFile",{path:"ENTREGA/MANIFIESTO_SHA256.txt",content:lineas.join("\n")+"\n"});
+  await call("workspace.writeFile",{path:"ENTREGA/README-entrega.md",content:"# Entrega\n\n- archivos: "+ordenados.length+" · bytes: "+bytes+"\n- huellas: `ENTREGA/MANIFIESTO_SHA256.txt` (verificar: `sha256sum -c`)\n- generado por cn.aduana — secretos: 0, por eso pasó.\n"});
+  out("aduana pasada · "+ordenados.length+" archivos · "+bytes+" bytes firmados");
+  return {manifiesto:"ENTREGA/MANIFIESTO_SHA256.txt",archivos:ordenados.length,bytes:bytes,secretos:0,verificar:"sha256sum -c ENTREGA/MANIFIESTO_SHA256.txt"};
+};
+document.getElementById("go").onclick=function(){H["aduana.revisar"]({}).then(out);};
+</script>
+</body></html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Crítico</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#f472b6}small{color:#64748b}button{background:#16233a;color:#f9a8d4;border:1px solid #6d2f4f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Crítico <small>cn.critico · nueve reglas adversarias, cero opiniones</small></h4>
+<button id="go">Pasar el crítico</button>
+<pre id="out">El crítico no te quiere: verifica lo que el modelo promete.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+var TEX=/\.(html?|css|js|mjs|cjs|jsx|ts|tsx|json|md|txt|cn|yml|yaml|toml|py|php|xml|svg|bat|sh)$/i;
+var REGLAS=[
+  ["pendencia",/\b(TODO|FIXME|HACK)\b/g,false],
+  ["texto-de-relleno",/lorem\s+ipsum/gi,false],
+  ["console-suolto",/console\.(log|debug)\(/g,false],
+  ["alert",/\balert\(/g,false],
+  ["secreto",/(api[_-]?key|secret|password|token)\s*[:=]\s*["'][A-Za-z0-9+\/=_-]{12,}/gi,true],
+  ["clave-privada",/-----BEGIN [A-Z ]*PRIVATE KEY-----/g,true],
+  ["localhost-fijo",/https?:\/\/localhost/g,false],
+  ["img-sin-alt",/<img(?![^>]*\balt=)[^>]*>/gi,false],
+  ["ruta-muerta",/(href|src)=["']((?!https?:|data:|#|mailto:|javascript:)[^"']*?)["']/gi,true]
+];
+H["critico.pasar"]=async function(){
+  var files=(await call("workspace.getFiles"))||[];
+  var caminos=new Set(files.map(function(f){return f.path;}));
+  var hallazgos=[],total=0,bloqueos=0;
+  for(const f of files){
+    if(!TEX.test(f.path)) continue;
+    var lineas=String(f.content||"").split("\n");
+    for(var i=0;i<lineas.length;i++){
+      for(const [regla,re,bloqueante] of REGLAS){
+        re.lastIndex=0;
+        var m=re.exec(lineas[i]);
+        if(!m) continue;
+        if(regla==="ruta-muerta"){
+          var dest=m[2];
+          if(dest[0]==="/"||dest==="") continue;
+          var base=f.path.split("/"); base.pop();
+          var parts=base.concat(dest.replace(/^\.\//,"").split("/"));
+          var resolved=parts.filter(function(p){return p!=="."&&p!=="";}).join("/");
+          if(caminos.has(resolved)||/\/$/.test(dest)||dest.indexOf("?")>=0) continue;
+          var hit=false; // con extensiones típicas de import
+          for(const ext of ["",".js",".html",".css",".json",".jsx",".ts",".tsx","/index.js","/index.html"]) if(caminos.has(resolved+ext)){hit=true;break;}
+          if(hit) continue;
+        }
+        if(hallazgos.length<60) hallazgos.push({regla:regla,archivo:f.path,linea:i+1,bloqueante:!!bloqueante,trozo:lineas[i].trim().slice(0,90)});
+        total++;
+        if(bloqueante) bloqueos++;
+        break; // un hallazgo por línea: no duplicar ruido
+      }
+    }
+  }
+  var veredicto=bloqueos>0?"NO ENTREGABLE (aún)":total===0?"ENTREGABLE":total<=3?"REVISAR (menor)":"NO ENTREGABLE (aún)";
+  out(veredicto+" · "+total+" hallazgos ("+bloqueos+" bloqueantes) en "+files.length+" archivos");
+  return {total:total,bloqueos:bloqueos,veredicto:veredicto,reglas:REGLAS.map(function(r){return r[0];}),hallazgos:hallazgos.slice(0,40)};
+};
+document.getElementById("go").onclick=function(){H["critico.pasar"]({}).then(out);};
+</script>
+</body></html>

@@ -1,0 +1,92 @@
+QUIRÓFANO v1 — YA INSTALADO EN ESTE ÁRBOL
+=========================================
+Este ZIP es tu `Cerebronico-CN-v1.6.31-ARBOL-LIMPIO` con la capa QUIRÓFANO v1
+aplicada (16 parches ancla-a-ancla + 2 ficheros nuevos). No hay que instalar nada:
+viene instalado y verificado.
+
+QUÉ ARREGLA
+-----------
+El problema: subes una app que funciona, pides una mejora, y el modelo (Gemini
+3.5 Flash, GLM 4.5…) reescribe de memoria un archivo que no leyó y te lo devuelve
+mutilado. Eso PASABA porque el guardián de sintaxis no puede rechazar un archivo
+mal equilibrado y perfectamente balanceado — y en .ts/.tsx no valida llaves a
+propósito (falsos positivos con genéricos y JSX).
+
+Qué hace ahora:
+  · Juzga cada escritura ANTES de tocar el disco: bloquea si desaparecen
+    exportaciones, si el archivo pierde ≥35 % de líneas útiles, si trae
+    marcadores de truncado («…», «resto del código») o si el package.json pierde
+    dependencias/scripts. Entre 12 % y 35 % avisa y deja pasar.
+  · Guarda copia de cada archivo ANTES de tocarlo (.cn-quirofano/ultima.json),
+    y si una tanda rompe algo, la REVIERTE y te cuenta por qué en el chat.
+  · Mete el CONTRATO QUIRÚRGICO en el prompt de sistema, para que el modelo no
+    lo intente siquiera.
+  · Añade dos herramientas al modelo: `revisar_cambios` y `deshacer_cambios`,
+    y tres endpoints para la IDE: /api/quirofano/estado · /revisar · /deshacer
+
+CÓMO ARRANCARLO (esto es lo importante)
+---------------------------------------
+  A) Desarrollo (usa el código fuente parcheado)  →  ya funciona tal cual:
+       cd ide\backend
+       npm install
+       npm run dev
+
+  B) Producción / el EXE (usan el bundle ya compilado) → HAY QUE RECOMPILAR UNA VEZ:
+       cd ide\backend
+       npm run build      (genera dist\server.mjs CON el Quirófano dentro)
+       npm start
+     Si no haces `npm run build`, el EXE y `npm start` siguen corriendo el
+     server.mjs viejo y el Quirófano NO actúa. Esto es lo único que hay que
+     recordar.
+
+COMPROBACIÓN EN 3 ÓRDENES
+------------------------
+  cd ide\backend
+  node --experimental-strip-types --check server.ts   (o: npm run lint)
+  npm run validar      →  +1 suite (quirofano) y +102 comprobaciones
+  npm run test:e2e     (opcional, pide Python)
+
+PUERTAS PESADAS (opcionales, caras)
+----------------------------------
+  QUIROFANO_GATES=tipos,humo npm run dev
+    tipos → npx tsc --noEmit, y sólo culpa de errores en archivos que la
+            operación tocó (los errores viejos de otros sitios no cuentan)
+    humo  → GET a la vista previa (:3500); un 500 o vacío revierte la tanda
+  QUIROFANO_CIERRE_MS=6000   (cuánto espera sin escrituras para juzgar la tanda)
+  QUIROFANO_SIN_IMPORTS=1    (desactiva la puerta de imports si te molesta)
+
+DAR MARCHA ATRÁS AL PARCH
+-------------------------
+  cd mejoras\cerebronico-quirofano-v1
+  node aplicar-quirofano.mjs --raiz "..\..\ide\backend" --revert
+  (deja server.ts, superPrompt.ts, toolRegistry.ts y validar.mjs con SHA256
+   idéntico al original y retira los dos ficheros nuevos)
+
+DOCUMENTACIÓN COMPLETA
+----------------------
+  mejoras\cerebronico-quirofano-v1\MANUAL_QUIROFANO_v1.md
+  mejoras\cerebronico-quirofano-v1\MANIFIESTO_SHA256_quirofano_v1.txt
+
+LO QUE NO HACE (para que no te confíes)
+--------------------------------------
+  · No adivina tu intención: si de verdad quieres reemplazar un archivo por otro
+    más pequeño, usa write_file con force=true y motivo (queda copia para deshacer).
+  · No valida lógica ni diseño: una mejora que compila y queda fea sigue siendo
+    tuya. Las puertas cubren sintaxis, API pública, imports, peso, tipos y humo.
+  · No toca el bundle ya compilado: sin `npm run build`, sigue el server viejo.
+
+========================================================
+ ADENDA v1.1 «HD» (24-sep-2026) — LEÍDA Y CORREGIDA A MANO
+========================================================
+1) npm run validar MENTÍA en rojo con la suite quirofano (la daba por "no
+   ejecutada" aunque pasaba 102/102). Corregido el veredicto del test al
+   formato que entiende validar.mjs. YA: 3230/3230 verdes, 58 suites.
+2) El dist/server.mjs que venía en el ZIP NO tenía el QUIRÓFANO dentro
+   (compilado antes del parche). YA RECOMPILADO: el EXE y npm start quedan
+   protegidos SIN necesitar npm run build otra vez.
+3) NUEVO: pestaña fija «Quirófano» en la IDE (PanelQuirofano.tsx): pulso
+   vital, puertas, operación en curso, última cirugía, bitácora y botones
+   Revisar/Deshacer. Lee /api/quirofano/estado cada 4 s.
+4) Copia canónica del panel + hashes: mejoras\cerebronico-quirofano-v1
+   (sección «v1.1 HD» del manifiesto).
+Todo el detalle: INFORME_QUIROFANO_v1.1_HD.md

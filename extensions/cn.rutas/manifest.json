@@ -1,0 +1,26 @@
+{
+  "id": "cn.rutas",
+  "name": "Rutas · centinela de imports y enlaces",
+  "version": "1.0.0",
+  "description": "Busca import/from/require/href/src que apuntan a archivos que no existen (la causa nº1 de pantalla en blanco) y reporta la ruta exacta esperada. Su segunda herramienta crea los stubs que faltan, sin pisar nada vivo.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "rutas.panel", "title": "Rutas", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "rutas.vigilar", "title": "Vigilar rutas rotas", "slash": "rutas" }, { "id": "rutas.stub", "title": "Crear stubs de rutas rotas" } ],
+    "tools": [ {
+      "name": "cn_rutas_vigilar",
+      "description": "Encuentra imports y enlaces a archivos inexistentes en el workspace. Usar tras crear/mover archivos y antes de arrancar la preview.",
+      "cheap": true,
+      "handler": "command:rutas.vigilar",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }, {
+      "name": "cn_rutas_stub",
+      "description": "Crea archivos vacíos de contorno para las rutas rotas detectadas (nunca pisa existentes). El contenido lo escribe después el usuario o el modelo.",
+      "handler": "command:rutas.stub",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    } ]
+  }
+}

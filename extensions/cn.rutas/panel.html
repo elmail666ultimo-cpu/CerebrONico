@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Rutas</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#f87171}small{color:#64748b}button{background:#16233a;color:#fca5a5;border:1px solid #6d2f2f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Rutas <small>cn.rutas · la pantalla en blanco empieza aquí</small></h4>
+<button id="vig">Vigilar rutas</button><button id="stu">Crear stubs</button>
+<pre id="out">imports/href/src que apuntan a la nada: lista exacta y arreglo opcional.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+var FUENTE=/\.(html?|jsx?|mjs|cjs|tsx?|css|vue|svelte)$/i;
+function resolver(base,ruta){
+  var parts=base.split("/");parts.pop();
+  String(ruta).split("/").forEach(function(seg){
+    if(seg==="."||seg==="") return;
+    if(seg==="..") parts.pop(); else parts.push(seg);
+  });
+  return parts.join("/");
+}
+function rotas(files){
+  var set=new Set(files.map(function(f){return f.path;}));
+  var EXT=["",".js",".mjs",".jsx",".ts",".tsx",".json",".css",".html",".svg",".png",".jpg",".jpeg",".webp","/index.js","/index.html","/index.jsx","/index.ts"];
+  var rotos=[];
+  for(const f of files){
+    if(!FUENTE.test(f.path)) continue;
+    var contenido=String(f.content||""), re, vistos=new Set();
+    re=/(?:from|import|require)\s*\(?\s*["'](\.{1,2}\/[^"']+)["']/g;
+    while((re2=re.exec(contenido))){vistos.add(resolver(f.path,re2[1]));}
+    re=/(?:href|src)\s*=\s*["'](\.{1,2}\/[^"']+|[^"'#?]+?\.(?:css|js|mjs|json|html|svg|png|jpe?g|webp))["']/g;
+    while((re2=re.exec(contenido))){var d=re2[1];if(/^(https?:|data:|mailto:|\/\/)/.test(d))continue;vistos.add(resolver(f.path,d));}
+    vistos.forEach(function(esperada){
+      var existe=EXT.some(function(e){return set.has(esperada.replace(/\/$/, "")+e)||set.has(esperada);});
+      if(!existe) rotos.push({desde:f.path,esperada:esperada});
+    });
+  }
+  return rotos;
+}
+var re2;
+async function explorar(){ var files=(await call("workspace.getFiles"))||[]; return {files:files,rotos:rotas(files)}; }
+H["rutas.vigilar"]=async function(){
+  var r=await explorar();
+  out(r.rotos.length?("rutas rotas: "+r.rotos.length):(r.files.length+" archivos · todas las rutas relativas existen"));
+  return {archivos:r.files.length,rotos:r.rotos,accion:r.rotos.length?"cn_rutas_stub crea los contornos":"nada que arreglar"};
+};
+H["rutas.stub"]=async function(){
+  var r=await explorar();
+  if(!r.rotos.length) return {ok:false,motivo:"no hay rutas rotas que stumpar (primero cn_rutas_vigilar)."};
+  var set=new Set(r.files.map(function(f){return f.path;}));
+  var creados=[];
+  for(const rot of r.rotos.slice(0,25)){
+    var p=rot.esperada;
+    if(set.has(p)) continue;
+    var ext=/\.(css|json|html|svg|png|jpe?g|webp|js|mjs|jsx|ts|tsx)$/.test(p)?p.split(".").pop():(/\/$/.test(p)?"":".js");
+    var ruta=ext===""?p:(/\./.test(p.split("/").pop()||"")?p:p+"."+ext);
+    var contenido=ruta.endsWith(".js")||ruta.endsWith(".mjs")?"// stub cn.rutas — "+rot.desde+" te esperaba. Escribe aquí de verdad.\nexport {};\n"
+      :ruta.endsWith(".json")?"{}\n"
+      :ruta.endsWith(".css")?"/* stub cn.rutas */\n"
+      :"<!doctype html>\n<html><head><meta charset=\"utf-8\"><title>stub cn.rutas</title></head><body></body></html>\n";
+    try { await call("workspace.writeFile",{path:ruta,content:contenido}); creados.push(ruta); set.add(ruta); }
+    catch(e){ out("stub «"+ruta+"» rechazado: "+String(e)); }
+  }
+  out("stumps creados: "+creados.length+" (el contenido aún te toca a ti o al modelo)");
+  return {creados:creados,pendientes:r.rotos.length-creados.length};
+};
+document.getElementById("vig").onclick=function(){H["rutas.vigilar"]({}).then(out);};
+document.getElementById("stu").onclick=function(){H["rutas.stub"]({}).then(out);};
+</script>
+</body></html>

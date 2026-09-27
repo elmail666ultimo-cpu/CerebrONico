@@ -1,0 +1,21 @@
+{
+  "id": "cn.critico",
+  "name": "Crítico · espejo adversario",
+  "version": "1.0.0",
+  "description": "Pasa 9 reglas adversarias a todo el workspace antes de dar nada por bueno: TODOs, lorem ipsum, console.log, alert, secretos, localhost, rutas muertas, img sin alt. Cada hallazgo con archivo y trozo; veredicto con puntaje.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "critico.panel", "title": "Crítico", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "critico.pasar", "title": "Pasar el crítico al workspace", "slash": "criticar" } ],
+    "tools": [ {
+      "name": "cn_critico_pasar",
+      "description": "Audita el workspace con reglas adversarias y devuelve hallazgos (regla, archivo, línea, trozo) y veredicto. Usar después de generar y antes de entregar.",
+      "cheap": true,
+      "handler": "command:critico.pasar",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    } ]
+  }
+}

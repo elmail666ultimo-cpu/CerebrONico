@@ -1,0 +1,34 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.documental",
+  "categoria": {
+    "id": "documental",
+    "nombre": "Documental (NoSQL)",
+    "icono": "📄",
+    "descripcion": "Bases de documentos: MongoDB, Firestore. Colecciones, esquemas flexibles, desnormalización, índices."
+  },
+  "espejo": {
+    "id": "servidor.documental",
+    "categoria": "documental",
+    "nombre": "Espejo · Servidor Documental",
+    "senales": [
+      "mongodb",
+      "firestore",
+      "documento",
+      "documentos",
+      "nosql",
+      "coleccion",
+      "colecciones",
+      "bson",
+      "json",
+      "desnormalizacion",
+      "documental"
+    ],
+    "descripcion": "Diseña el esquema JSON de una colección, sugiere índices y marca qué campos conviene desnormalizar. Sin conexión: solo estructura.",
+    "contrato": {
+      "entrada": "coleccion: string · campos: [{ nombre, tipo, indice?, referenciado? }]",
+      "salida": "esquema (JSON), indices ([]), desnormalizar ([]), avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "948966045f263e8b5d044cd99547589e3b8b4b33944727795ab8630640b0f5a9"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "cn.escriba",
+  "name": "Escriba · documentación que se escribe sola",
+  "version": "1.0.0",
+  "description": "Lee el workspace y escribe README.md de verdad: árbol de archivos, cómo arrancar tomado de package.json, tabla por archivo con su primera línea de contexto. Si el proyecto cambia, la documentación se re-genera; nunca miente.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "escriba.panel", "title": "Escriba", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "escriba.documentar", "title": "Documentar el workspace", "slash": "documentar" } ],
+    "tools": [ {
+      "name": "cn_escriba_documentar",
+      "description": "Regenera README.md desde el estado real del proyecto (archivos, scripts, por-file resumen). Usar al terminar una tanda de cambios.",
+      "cheap": true,
+      "handler": "command:escriba.documentar",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    } ]
+  }
+}

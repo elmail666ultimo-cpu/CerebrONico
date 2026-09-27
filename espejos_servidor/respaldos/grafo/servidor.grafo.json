@@ -1,0 +1,34 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.grafo",
+  "categoria": {
+    "id": "grafo",
+    "nombre": "Grafos",
+    "icono": "🕸️",
+    "descripcion": "Bases de grafos: Neo4j, Cypher. Nodos, aristas, relaciones, recorridos."
+  },
+  "espejo": {
+    "id": "servidor.grafo",
+    "categoria": "grafo",
+    "nombre": "Espejo · Servidor de Grafos",
+    "senales": [
+      "grafo",
+      "grafos",
+      "neo4j",
+      "cypher",
+      "nodo",
+      "nodos",
+      "arista",
+      "aristas",
+      "relaciones",
+      "recorrido",
+      "grado"
+    ],
+    "descripcion": "Cuenta nodos y aristas, detecta huérfanos y sugiere un patrón de consulta Cypher. Determinista y sin ejecución.",
+    "contrato": {
+      "entrada": "nodos: [{ nombre, etiqueta }] · aristas: [{ desde, hacia, tipo }]",
+      "salida": "nodos, aristas, huerfanos ([]), consultaCypher, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "b1d90f0682bb2bbba496ce85e3214d84fd8f5a9adddbc7efc813f18e41407b1c"
+}

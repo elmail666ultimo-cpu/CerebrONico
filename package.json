@@ -1,0 +1,174 @@
+{
+  "name": "cerebronico-ide",
+  "private": true,
+  "version": "1.16.0",
+  "description": "CerebroNico IDE — entorno de desarrollo con IA local (Ollama), sandbox en vivo, puente PC, soporte OpenAI/Gemini/OpenRouter y extensión .cn para archivos personalizados. Por Mario Nicolas Quintero.",
+  "type": "module",
+  "main": "electron-main.cjs",
+  "author": "Mario Nicolas Quintero",
+  "copyright": "Copyright © 2026 Mario Nicolas Quintero. Todos los derechos reservados.",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "dev:isolated": "cross-env NODE_ENV=development tsx server.ts",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.mjs",
+    "start": "node dist/server.mjs",
+    "start:isolated": "cross-env NODE_ENV=production node dist/server.mjs",
+    "lint": "tsc --noEmit",
+    "validar": "node scripts/validar.mjs",
+    "verificar": "node scripts/quirofano-cli.mjs verificar",
+    "cirugia": "node scripts/quirofano-cli.mjs corregir",
+    "revertir": "node scripts/quirofano-cli.mjs revertir",
+    "snapshot": "node scripts/quirofano-cli.mjs iniciar",
+    "manifiesto": "node scripts/manifiesto.mjs",
+    "manifiesto:verificar": "node scripts/manifiesto.mjs --verificar",
+    "superficie": "node scripts/superficie.mjs",
+    "superficie:verificar": "node scripts/superficie.mjs --verificar",
+    "test:e2e": "python3 tests/comprehensive_e2e_test.py",
+    "dist": "electron-builder --win --x64",
+    "postinstall": "node scripts/postinstall.mjs",
+    "modelos": "node scripts/instalar-modelos.mjs",
+    "modelfiles": "tsx scripts/gen-modelfile.ts",
+    "reflejo": "node scripts/gen-reflejo.mjs",
+    "predev": "node scripts/gen-reflejo.mjs && tsx scripts/gen-modelfile.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^2.20.0",
+    "@tailwindcss/vite": "^4.0.9",
+    "@types/prismjs": "^1.26.6",
+    "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "js-yaml": "^4.3.2",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.16.0",
+    "pdfjs-dist": "^4.8.69",
+    "prismjs": "^1.30.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "smol-toml": "^1.8.0",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.0.9"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "44.3.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
+  },
+  "build": {
+    "appId": "com.cerebronico.ide",
+    "productName": "CerebróNico",
+    "copyright": "Copyright © 2026 Mario Nicolas Quintero",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "asar": false,
+    "files": [
+      "dist/**/*",
+      "electron-main.cjs",
+      "package.json",
+      "node_modules/**/*",
+      "agent_bridge_5000.py",
+      "app/**/*",
+      "requirements.txt"
+    ],
+    "extraResources": [
+      {
+        "from": "../dist/CerebroNicoAgent.exe",
+        "to": "dist/CerebroNicoAgent.exe",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../dist/cerebronico_bridge.exe",
+        "to": "dist/cerebronico_bridge.exe",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../backend/agent_bridge_5000.py",
+        "to": "agent_bridge_5000.py",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../backend/app",
+        "to": "app",
+        "filter": [
+          "**/*.py",
+          "**/__init__.py"
+        ]
+      },
+      {
+        "from": "../requirements.txt",
+        "to": "requirements.txt",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../CerebroNicoAgent.spec",
+        "to": "CerebroNicoAgent.spec",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../cerebronico_bridge.spec",
+        "to": "cerebronico_bridge.spec",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../build_backend.bat",
+        "to": "build_backend.bat",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signtoolOptions": {
+        "publisherName": "Mario Nicolas Quintero"
+      },
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CerebroNico IDE"
+    }
+  }
+}

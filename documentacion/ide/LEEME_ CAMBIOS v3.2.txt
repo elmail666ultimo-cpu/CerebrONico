@@ -1,0 +1,73 @@
+============================================================
+ CerebroNico IDE v3.2 — "Sandbox Automático + Carpeta de Chats"
+ LEEME PRIMERO: qué cambió y cómo usarlo
+============================================================
+
+QUÉ SE AGREGÓ / CORRIGIÓ EN ESTA VERSIÓN (sobre la v3.1)
+========================================================
+
+1) SANDBOX 100% AUTOMÁTICO EN LA PREVISUALIZACIÓN
+   Ya no tocás ningún botón: el sandbox ahora tiene PILOTO
+   AUTOMÁTICO (pilazo "AUTO ON" en la pestaña Sandbox):
+     - Al entrar a la pestaña Sandbox se sincroniza solo.
+     - Si faltan dependencias, hace npm install SOLO.
+     - Arranca tu app en el puerto 3500 sin que la toques.
+     - Si el server se cae, lo re-levanta solo (vigilancia cada 8s).
+     - Si el proyecto no arranca por dependencias viejas
+       (ej: "cross-env: not found"), lo detecta, corre
+       npm install automáticamente y reintenta (auto-reparación).
+     - EDITÁS EN LA IDE Y EL PREVIEW SE ACTUALIZA SOLO:
+       cada cambio de archivos se sincroniza al sandbox en 2.5s
+       y el HMR de Vite refresca la vista (piloto automático ON
+       por defecto; se puede apagar con el botón AUTO).
+   La portada del proyecto nuevo ahora muestra una página de
+   bienvenida en :3500 en vez de "Cannot GET /".
+
+2) CARPETA DE CHATS GUARDADOS (en el chat, arriba a la izquierda)
+   Botón "Chats (N)" en la barra del chat. Abre un panel con:
+     - NUEVO chat: guarda el actual en la carpeta y empieza limpio.
+     - ABRIR: clic en un chat guardado y se intercambia por el
+       actual (el actual se guarda solo antes de salir).
+     - RENOMBRAR: lápiz en cada chat (también en el chat actual).
+       Enter confirma, Esc cancela.
+     - BORRAR: tachito con confirmación.
+   Título automático con tu primer mensaje, editable siempre.
+   Todo persiste en el almacenamiento local de la IDE (sobrevive
+   a reinicios de la app).
+
+3) BOTÓN DE AUDIO EN CADA MENSAJE
+   Cada mensaje (tuyo y del modelo) tiene su botón "Escuchar":
+   lee el texto en voz alta con la voz del sistema (español si
+   está disponible). Los bloques de código no se leen: se avisa
+   "bloque de código omitido". Mientras lee, el botón muestra
+   "Detener". El botón de altavoz de la barra superior ahora es
+   el silencio global: si está silenciado, los "Escuchar" quedan
+   desactivados.
+
+4) BOTONES DE DESCARGA REDUCIDOS (de 4 a 2, como pediste)
+   - "Descargar ZIP" (verde, barra superior): TODO el proyecto,
+     configurado en puerto 3500.
+   - "Descargar este archivo" (cabecera del editor): el archivo
+     individual abierto.
+   Se eliminaron los duplicados: el ZIP de la barra de pestañas
+   del panel derecho, el ZIP de la pestaña Entregables y el
+   botón de descarga dentro de la barra del CodeEditor.
+
+RECORDATORIO v3.1 (sigue incluido)
+===================================
+- El EXE arranca solo: ejecuta iniciar_todo_windows.bat oculto,
+  pantalla de carga con progreso real, adiós pantalla negra.
+- Árbol de archivos VERTICAL con carpetas, buscador e iconos.
+- ZIP exportable y sandbox en puerto 3500 (la IDE en 3000).
+
+CÓMO USAR
+=========
+1. Descomprimí el ZIP.
+2. (Primera vez) Doble clic en iniciar_todo_windows.bat para que
+   instale dependencias y quede todo listo; o compilá el EXE con
+   compilar_exe_windows.bat y usá el instalador: el EXE hace todo solo.
+3. Abrí la IDE, andá a la pestaña "Sandbox" y esperá 10-30 segundos:
+   el piloto automático sincroniza, instala y enciende tu app en
+   :3500 sin que toques nada.
+4. En el chat, botón "Chats" para guardar/renombrar/borrar
+   conversaciones, y "Escuchar" en cada mensaje para oírlo.

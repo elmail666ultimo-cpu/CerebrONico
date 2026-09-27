@@ -1,0 +1,111 @@
+============================================================
+  CerebroNico IDE — v3.3 "REFACTOR Y CORRECCIONES"
+  (package.json 1.3.0 · Septiembre 2026)
+============================================================
+
+  AUTOR Y PROPIETARIO: MARIO NICOLAS QUINTERO
+  Copyright © 2026 Mario Nicolas Quintero.
+  Todas las credenciales e integraciones de este paquete
+  quedan atribuidas a Mario Nicolas Quintero.
+
+Esta versión NO agrega funciones nuevas: limpia, ordena y
+repara lo que ya existía. Ideal tenerla como base estable.
+
+------------------------------------------------------------
+1) LIMPIEZA DE BASURA (era peso muerto)
+------------------------------------------------------------
+- Eliminados directorios/archivos accidentales que viajaban
+  en el proyecto: del/, dir, para/, llamada/, Downloads/,
+  buildbuild_backend.bat (duplicado mal nombrado del
+  build_backend.bat real), app/backend__init__.py (nombre
+  incorrecto; el marcador válido app/__init__.py sigue
+  intacto) y todos los __pycache__.
+- LOS __init__.py SE CONSERVAN (son marcadores de paquete
+  que FastAPI/PyInstaller necesitan para los imports tipo
+  `from backend.app.utils.env_manager import ...`):
+  * backend/__init__.py, app/__init__.py y app/utils/__init__.py
+    intactos.
+  * src/__init__.py y src/utils/__init__.py se normalizaron:
+    tenían contenido markdown inválido (no era Python) y se
+    dejaron como marcadores de paquete válidos. Verificado:
+    los imports del agente resuelven y los 5 archivos
+    compilan sin errores.
+- El ZIP ya NO incluye: venv/ (57 MB regenerables),
+  build/ de PyInstaller (35 MB de intermedios) ni ningún
+  node_modules (los instala solos el BAT y el piloto automático).
+  El paquete pesa una fracción y no arrastra binarios ajenos.
+  Si quieres compilar el agente EXE: build_backend.bat crea el
+  venv solo. El EXE ya compilado SÍ viaja en dist/.
+
+------------------------------------------------------------
+2) REFACTORIZACIÓN (mismo comportamiento, mejor código)
+------------------------------------------------------------
+- NUEVO src/constants.ts: única fuente de verdad para los
+  puertos (IDE 3000 · Sandbox 3500 · Puente 5000 · Ollama
+  11434) y las 19 claves de localStorage (codigo0_*).
+  Antes había ~35 strings duplicados entre 6 archivos: cambiar
+  un puerto implicaba cazarlos a mano.
+- NUEVO src/utils/storage.ts: loadJSON/saveJSON/loadString/
+  saveString con protección ante JSON corrupto y cuota llena
+  (antes eran helpers privados de App.tsx).
+- NUEVO src/utils/chatStorage.ts: deriveChatTitle,
+  makeChatId y buildArchivedChat (lógica pura de la carpeta
+  de chats, testeable sin React; App.tsx sólo orquesta).
+- server.ts: helper readFileTail() elimina la duplicación de
+  lectura de logs (sandbox/start y sandbox/logs).
+- ApiKeyModal: eliminada la doble persistencia (el modal
+  repetía los setItem que App.tsx ya hacía por callback).
+
+------------------------------------------------------------
+3) CORRECCIONES (bugs reales encontrados y reparados)
+------------------------------------------------------------
+a) PUENTE :5000 SIN PYTHON QUEDABA MUERTO (el más grave)
+   Si la PC no tenía Python, el puente moría en silencio
+   (solo un warn en consola) y el Modo Agente PC nunca
+   funcionaba. Ahora el server sondea Python al arrancar;
+   si no existe, lanza automáticamente el agente compilado
+   dist/CerebroNicoAgent.exe que viaja en el paquete.
+   Cadena: python -> python3 -> CerebroNicoAgent.exe.
+
+b) EXE: VENTANA OCULTA PARA SIEMPRE SI EL SERVER NO RESPONDE
+   Antes, si el server no levantaba, la ventana principal
+   quedaba oculta eternamente (solo el splash avisaba).
+   Ahora se muestra una página de error clara con botón
+   "Reintentar ahora" y reintento automático cada 10s.
+
+c) OLLAMA_URL NO SOBREVIVÍA A LA RECARGA
+   La URL de Ollama configurada en Ranuras de API se
+   guardaba pero App.tsx nunca la leía al arrancar: al
+   recargar volvía a 127.0.0.1:11434 sin importar lo que
+   hubieras puesto. Corregido.
+
+d) WATCHDOG DEL SANDBOX CONTRA ERRORES HTTP
+   Si /api/sandbox/status respondía 401/500, el vigilante
+   interpretaba "sandbox caído" y relanzaba el autopiloto
+   en bucle. Ahora valida r.ok antes de decidir.
+
+e) Versión alineada: package.json 1.2.0 -> 1.3.0.
+
+------------------------------------------------------------
+4) VERIFICACIÓN REALIZADA (no es "debería funcionar")
+------------------------------------------------------------
+- tsc --noEmit: sin errores. vite build + esbuild: OK.
+- E2E del server: UI :3000 -> 200, sandbox arranque frío
+  online en :3500, preview 200, puente :5000 health 200
+  (con la nueva sonda Python/EXE activa), stop limpio.
+- UI en navegador: explorador vertical, drawer de chats y
+  piloto automático del sandbox (sync -> arranque -> preview
+  vivo) operando sin clicks.
+- electron-main.cjs: chequeo de sintaxis OK.
+
+------------------------------------------------------------
+5) CÓMO ARRANCAR (igual que siempre)
+------------------------------------------------------------
+1. iniciar_todo_windows.bat  (o directamente el EXE: el
+   arranque automático lo ejecuta oculto por ti)
+2. Primera vez: instala node_modules solo y arranca Ollama.
+3. Compilar instalador Windows: compilar_exe_windows.bat
+4. Compilar agente EXE (opcional, ya viene uno): build_backend.bat
+
+Puertos: IDE 3000 · Sandbox/App exportada 3500 ·
+Puente PC 5000 · Ollama 11434.

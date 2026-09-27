@@ -1,0 +1,942 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: #121824;
+  }
+
+  /* v2.0 — Base legible a 100% de zoom (portado del fix de pantalla de la v1.8.1):
+     1rem = 15px, así text-sm ≈ 13px y text-xs ≈ 12px sin tocar el zoom del navegador. */
+  html {
+    font-size: 15px;
+  }
+
+  /* v1.9 — Selector global de tamaño de texto (14-25px) desde el Header.
+     Escala TODA la app porque las clases de Tailwind usan rem. */
+  html[data-app-font-size] {
+    font-size: var(--cn-app-font-size, 15px) !important;
+  }
+
+  body {
+    background-color: #000000;
+    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* V8 — el slider "Tamaño del texto (px)" de Apariencia era regulador mudo (nada
+       consumía --cn-font-size). Ahora el cuerpo la usa; default 14px = lo que
+       heredaba antes, así el por defecto no cambia un píxel. */
+    font-size: var(--cn-font-size, 14px);
+    line-height: 1.45;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* 🔧 El #root ocupa toda la pantalla — permite scroll si es necesario */
+  #root {
+    width: 100vw;
+    min-height: 100vh;
+  }
+
+  /* Textos monoespaciados (terminal, código, badges) — escalan con el tamaño global */
+  code, pre, kbd, samp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1em;
+  }
+}
+
+/* ============================================================
+   🔧 ESCALADO DE TIPOGRAFÍA GLOBAL — CerebroNico
+   ============================================================
+   Aumentamos los textos pequeños para mejor legibilidad.
+   ⚠️ v2.0: los valores están en `rem`, NO en px. Antes eran px con
+   !important y eso ROMPÍA el selector global de tamaño de texto
+   (v1.9): al cambiar el tamaño de la app estos 5 overrides se
+   quedaban clavados y el resto escalaba. En rem, escala todo junto.
+   ============================================================ */
+
+/* ============================================================
+   v1.6.16 — ESTOS OVERRIDES ERAN «ESTÁ TODO GRANDE»
+   ------------------------------------------------------------
+   Aquí estaba la palanca global de verdad, y no la había visto.
+
+   Estas cinco reglas existen para AGRANDAR textos pequeños, y lo hacen
+   con `!important`, o sea por encima de todo. Medido contra los valores
+   nativos de Tailwind, inflaban la interfaz entera:
+
+       clase        Tailwind   override   inflado
+       text-[9px]    0.60rem    0.733rem    +22 %
+       text-[10px]   0.667rem   0.8rem      +20 %
+       text-[11px]   0.733rem   0.867rem    +18 %
+       text-xs       0.75rem    0.867rem    +16 %
+       text-sm       0.875rem   0.933rem     +7 %
+
+   Como casi TODA la interfaz usa `text-xs` o `text-sm`, ese 7–22 % de
+   más se aplicaba en todas partes a la vez. Por eso el usuario bajaba el
+   control al mínimo y seguía viendo todo grande: el suelo no era el
+   control, era esta tabla.
+
+   Se reducen a valores casi nativos. La jerarquía la siguen aportando las
+   clases de papel (`.cn-*`), así que bajar el cuerpo no aplana nada.
+   ============================================================ */
+.text-\[9px\]  { font-size: 0.65rem !important; }    /* ≈10px a 15px de base */
+.text-\[10px\] { font-size: 0.72rem !important; }    /* ≈11px */
+.text-\[11px\] { font-size: 0.8rem !important; }     /* ≈12px */
+.text-xs       { font-size: 0.8rem !important; }     /* 12px nativo */
+.text-sm       { font-size: 0.867rem !important; }   /* ≈13px */
+
+/* ============================================================
+   📐 v1.6.15 — ESCALA TIPOGRÁFICA ÚNICA + MEDIDA DE VENTANAS
+   ============================================================
+   El problema no era el gusto, era que NO HABÍA JERARQUÍA.
+
+   · El título de una ventana emergente usaba `text-sm`, exactamente el
+     mismo tamaño que el cuerpo de texto que va debajo (ver el <h3> de
+     ModelSelectorModal). Un cartel y su contenido pesaban igual.
+   · Peor: los overrides de arriba empujan HACIA ARRIBA con `!important`.
+     `.text-xs` nunca baja de 0.867rem. Así que el selector de «tamaño de
+     texto» puesto al mínimo no tenía nada que reducir: el suelo ya estaba
+     puesto. De ahí «lo tengo al mínimo y aún salen carteles grandes».
+
+   Solución: seis pasos ordenados POR CONSTRUCCIÓN —
+   hero > title > sub > body > label > meta — y un componente ya no elige
+   píxeles sueltos, elige un PAPEL. Pida lo que pida el componente, un
+   título no puede quedar más pequeño que su contenido.
+   ============================================================ */
+:root {
+  /* v1.6.16 — escala recortada y con MÁS contraste.
+     Antes: 1.34 / 1.14 / 1.0 / 0.9 / 0.8 / 0.72
+     El usuario decía «note todos los tamaños igual», y tenía razón: entre
+     un papel y el siguiente había un 10 % de diferencia, que el ojo no
+     distingue. Ahora cada salto es de ~15 % y apreciable, y el conjunto
+     baja en bloque para que el control sirva de algo en todo su recorrido. */
+  --cn-t-hero:  1.15rem;
+  --cn-t-title: 0.98rem;
+  --cn-t-sub:   0.85rem;
+  --cn-t-body:  0.73rem;
+  --cn-t-label: 0.65rem;
+  --cn-t-meta:  0.57rem;
+  /* Medida única de ventana emergente: casi toda la pantalla. */
+  --cn-modal-w: min(1500px, 97vw);
+  --cn-modal-h: 94vh;
+}
+
+/* Declaradas DESPUÉS de los overrides de arriba: a igualdad de
+   especificidad y de `!important`, gana la última del archivo. Por eso
+   estas clases mandan sobre `.text-xs` / `.text-sm`. */
+.cn-hero  { font-size: var(--cn-t-hero)  !important; line-height: 1.15 !important; font-weight: 700; letter-spacing: -0.01em; }
+.cn-title { font-size: var(--cn-t-title) !important; line-height: 1.2  !important; font-weight: 700; letter-spacing: -0.005em; }
+.cn-sub   { font-size: var(--cn-t-sub)   !important; line-height: 1.3  !important; font-weight: 600; }
+.cn-body  { font-size: var(--cn-t-body)  !important; line-height: 1.4  !important; }
+.cn-label { font-size: var(--cn-t-label) !important; line-height: 1.3  !important; }
+.cn-meta  { font-size: var(--cn-t-meta)  !important; line-height: 1.25 !important; }
+
+/* ---- Ventana emergente estándar -------------------------------------
+   Antes cada modal elegía su ancho a ojo (`max-w-2xl`, `max-w-3xl`…):
+   entre 588 y 672 px. En un monitor de 1366 px eso es la MITAD de la
+   pantalla tirada a la basura mientras el contenido se apretaba dentro.
+   Ahora hay una sola medida y el cuerpo se lleva todo el alto restante. */
+.cn-modal {
+  width: var(--cn-modal-w) !important;
+  max-width: var(--cn-modal-w) !important;
+  max-height: var(--cn-modal-h) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+.cn-modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;      /* sin esto, flex ignora el scroll interno */
+  overflow-y: auto !important;
+}
+.cn-modal-head { padding: 0.6rem 0.9rem !important; }
+.cn-modal-foot { padding: 0.55rem 0.9rem !important; }
+
+/* ============================================================
+   🧠 ANIMACIÓN CEREBRO PENSANTE / EXPLOTANDO — CerebroNico V0.9
+   ============================================================
+   3 fases controladas por clase CSS:
+     .brain-idle      → pulso suave violeta
+     .brain-thinking   → ondas concéntricas + vibración media
+     .brain-exploding  → explosión de ondas + glow intenso
+
+   Optimizado para GPU: solo usa transform y opacity (cero JS por frame).
+   ============================================================ */
+
+.brain-thinking-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.brain-icon {
+  color: #a78bfa; /* violeta distintivo de CerebroNico */
+  animation: brain-pulse 2s ease-in-out infinite;
+  z-index: 2;
+  position: relative;
+}
+
+/* Ondas expansivas: 3 anillos desfasados para crear continuidad */
+.brain-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #a78bfa;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.brain-ring-1 { animation: brain-wave 2.4s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
+.brain-ring-2 { animation: brain-wave 2.4s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 0.8s; }
+.brain-ring-3 { animation: brain-wave 2.4s cubic-bezier(0.1, 0.8, 0.3, 1) infinite 1.6s; }
+
+/* Estado IDLE: solo pulso suave, sin ondas */
+.brain-idle .brain-ring { display: none; }
+.brain-idle .brain-icon {
+  animation: brain-pulse-soft 3s ease-in-out infinite;
+  color: #8b5cf6;
+}
+
+/* Estado THINKING: pulso medio + ondas lentas */
+.brain-thinking .brain-icon {
+  animation: brain-pulse 1.4s ease-in-out infinite;
+  color: #a78bfa;
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.6));
+}
+
+/* Estado EXPLODING: pulso rápido + ondas rápidas + glow intenso */
+.brain-exploding .brain-icon {
+  animation: brain-pulse-fast 0.6s ease-in-out infinite;
+  color: #fbbf24; /* dorado brillante = explosión creativa */
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 6px rgba(167, 139, 250, 0.6));
+}
+.brain-exploding .brain-ring {
+  border-color: #fbbf24;
+  animation: brain-wave-fast 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+.brain-exploding .brain-ring-2 { animation-delay: 0.4s; }
+.brain-exploding .brain-ring-3 { animation-delay: 0.8s; }
+
+/* Pulsos suaves (IDLE) */
+@keyframes brain-pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(139, 92, 246, 0.3));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.5));
+  }
+}
+
+/* Pulso medio (THINKING) */
+@keyframes brain-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px rgba(167, 139, 250, 0.4));
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.7));
+  }
+}
+
+/* Pulso rápido (EXPLODING) */
+@keyframes brain-pulse-fast {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6));
+  }
+  25% {
+    transform: scale(1.18) rotate(-2deg);
+    filter: drop-shadow(0 0 14px rgba(251, 191, 36, 1));
+  }
+  50% {
+    transform: scale(1.08) rotate(0deg);
+    filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.9));
+  }
+  75% {
+    transform: scale(1.2) rotate(2deg);
+    filter: drop-shadow(0 0 14px rgba(251, 191, 36, 1));
+  }
+}
+
+/* Ondas de expansión THINKING (lentas) */
+@keyframes brain-wave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.8;
+    border-width: 2px;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* Ondas de explosión EXPLODING (rápidas + más grandes) */
+@keyframes brain-wave-fast {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+    border-width: 3px;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3.2);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* ============================================================
+   🖼️ FONDO DE PANTALLA CON IMAGEN DE CEREBRO — CerebroNico V0.9
+   ============================================================
+   El fondo se aplica al body. La imagen se sube a /api/fs/upload-bg
+   o se incrusta como data URL en localStorage.
+   ============================================================ */
+
+body.has-brain-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* v1.1 — Cuando hay fondo de pantalla, aseguramos que NO haya color de fondo
+     sólido que tape la imagen. El body base tiene background-color: #000 que
+     tapaba la imagen. */
+  background-color: transparent !important;
+}
+
+/* 🔧 Overlay oscuro semi-transparente sobre el fondo para mantener legibilidad.
+   z-index: -1 para que quede DETRÁS del #root (que tiene z-index 0 por defecto).
+   Antes estaba en z-index: 0 y tapaba la imagen haciéndola ver opaca. */
+body.has-brain-bg::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(11, 15, 23, 0.55) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Asegurar que el #root esté por encima del overlay del fondo */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   v1.1 — VISIBILIDAD DEL FONDO DE PANTALLA
+   ============================================================
+   Cuando el usuario sube un fondo (body.has-brain-bg), los paneles
+   del IDE se vuelven translúcidos con backdrop-blur para que el
+   fondo se vea a través de ellos. Antes eran opacos y el fondo
+   quedaba totalmente tapado, dando la sensación de "no funciona".
+   ============================================================ */
+
+/* Header translúcido con blur */
+body.has-brain-bg header {
+  background: rgba(3, 6, 12, 0.65) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Paneles laterales (bg-[#0d121c]) translúcidos */
+body.has-brain-bg .bg-\[\#0d121c\] {
+  background: rgba(13, 18, 28, 0.75) !important;
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+
+/* Otros fondos opacos comunes en los paneles */
+body.has-brain-bg .bg-\[\#060912\],
+body.has-brain-bg .bg-\[\#060a14\],
+body.has-brain-bg .bg-\[\#05070d\],
+body.has-brain-bg .bg-\[\#050811\],
+body.has-brain-bg .bg-\[\#03060c\] {
+  background: rgba(5, 8, 17, 0.75) !important;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+
+/* El chat central también translúcido para que se vea el fondo */
+body.has-brain-bg .bg-transparent {
+  background: transparent !important;
+}
+
+/* Mantener legibilidad: el contenido de texto sigue con su color sólido */
+body.has-brain-bg .text-zinc-100,
+body.has-brain-bg .text-zinc-200,
+body.has-brain-bg .text-white {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Custom scrollbar styling & interactive thumb states */
+::-webkit-scrollbar {
+  width: 8px;   /* antes 6px — más gruesa para mejor visibilidad */
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
+  border-color: rgba(56, 189, 248, 0.95);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(56, 189, 248, 0.95);
+  border-color: rgba(125, 211, 252, 1);
+}
+
+::-webkit-scrollbar-corner {
+  background: #000000;
+}
+
+/* Specific smooth scroll utilities */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) #000000;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(2, 4, 8, 0.95);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
+}
+
+.custom-scrollbar-amber {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.4) rgba(13, 18, 28, 0.7);
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-track {
+  background: rgba(10, 14, 23, 0.8);
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.35);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  border-radius: 6px;
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.75);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Prism Syntax Highlighting Styles (CerebroNico Dark Theme) */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #64748b;
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: #94a3b8;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #f59e0b;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #34d399;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #38bdf8;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #818cf8;
+  font-weight: 500;
+}
+
+.token.function,
+.token.class-name {
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #ec4899;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+/* Markdown token highlights */
+.token.title.important {
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.token.code-snippet {
+  color: #a78bfa;
+  background: rgba(30, 41, 59, 0.6);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+/* Pre overlay alignment */
+.prism-editor-pre {
+  color: #cbd5e1;
+  tab-size: 2;
+  -moz-tab-size: 2;
+}
+
+/* ============================================================
+   v2.0 — ADAPTACIÓN AL VIEWPORT (heredado del fix de pantalla v1.8.1)
+   ============================================================
+   El problema original: a 50 % de zoom todo se veía diminuto y a 80 %
+   se cortaba la información del panel derecho (los anchos fijos
+   izquierda 320 + derecha 540 = 860 px, más el centro, no caben).
+   Aquí: en escritorio el shell no lleva padding, y por debajo de
+   1280 / 1100 px la tipografía base baja sola. Por debajo de 900 px
+   los splitters de arrastre se ocultan (layout flex puro).
+   ============================================================ */
+
+/* En escritorio el padding del shell solo roba ancho útil; en móvil/tablet
+   se conserva para respetar notch y barras de gestos. */
+.app-shell-margin {
+  padding: 0;
+}
+
+@media (max-width: 1280px) {
+  html { font-size: 14.5px; }
+}
+@media (max-width: 1100px) {
+  html { font-size: 14px; }
+}
+/* v1.15.0 · REDIMENSIONES — móvil: en pantallas muy estrechas la raíz baja un
+   punto más para que el chat conserve ancho útil. Es el mismo número que
+   declara `src/engine/redimensionPantalla.ts` (ANCHO_MOVIL / escalaRaiz). */
+@media (max-width: 640px) {
+  html { font-size: 13px; }
+}
+@media (max-width: 900px) {
+  /* Sin splitters: el layout se resuelve en flex puro y los paneles se apilan */
+  .cn-splitter { display: none !important; }
+}
+@media (min-width: 1024px) {
+  .app-shell-margin { padding: 0; }
+}
+@media (pointer: coarse) {
+  .app-shell-margin { padding: 3mm; }
+}
+
+/* ============================================================
+   v2.0 — VARIABLES DEL PANEL PRO (proSettings.ts)
+   ============================================================
+   applyProSettings() escribe estas variables en <html>. Aquí van los
+   valores por defecto para que la app se vea igual si nunca se abrió
+   el panel de configuración pro.
+   ============================================================ */
+:root {
+  --cn-bg: #05070d;
+  --cn-panel: #0a0f1a;
+  --cn-border: #162034;
+  --cn-text: #e5e7eb;
+  --cn-accent: #22d3ee;
+  --cn-font: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  --cn-font-size: 13px;
+  --cn-line-height: 1.55;
+  --cn-density: 1;
+  --cn-radius: 10px;
+}
+
+/* ============================================================
+   TEMA DE ACENTO (v1.15.1 · REFORMA)
+   ------------------------------------------------------------
+   Tailwind v4 expone cada color de su paleta como variable
+   `--color-<nombre>-<tono>`, y las utilidades la referencian con
+   `var(--color-…)`. Aquí se RE-deriva toda la escala del cian desde
+   `--cn-accent`: cambiar esa única variable recolorea — sin tocar
+   una sola clase — texto, bordes, fondos, tintes con /opacidad,
+   anillos y focos. El módulo `engine/tema.ts` escribe `--cn-accent`.
+   ============================================================ */
+:root {
+  --color-cyan-50:  color-mix(in srgb, var(--cn-accent) 12%, white);
+  --color-cyan-100: color-mix(in srgb, var(--cn-accent) 34%, white);
+  --color-cyan-200: color-mix(in srgb, var(--cn-accent) 60%, white);
+  --color-cyan-300: color-mix(in srgb, var(--cn-accent) 82%, white);
+  --color-cyan-400: var(--cn-accent);
+  --color-cyan-500: color-mix(in srgb, var(--cn-accent) 84%, black);
+  --color-cyan-600: color-mix(in srgb, var(--cn-accent) 68%, black);
+  --color-cyan-700: color-mix(in srgb, var(--cn-accent) 50%, black);
+  --color-cyan-800: color-mix(in srgb, var(--cn-accent) 36%, black);
+  --color-cyan-900: color-mix(in srgb, var(--cn-accent) 24%, black);
+  --color-cyan-950: color-mix(in srgb, var(--cn-accent) 14%, black);
+}
+
+/* Redondez: Tailwind v4 expone el radio como `--radius-*`; se re-derivan de
+   `--cn-radius` (que escribe engine/tema.ts) para que un solo deslizador mueva
+   TODAS las esquinas (rounded, rounded-md, rounded-lg, rounded-xl…). */
+:root {
+  --radius-xs:  calc(var(--cn-radius) * 0.4);
+  --radius-sm:  calc(var(--cn-radius) * 0.6);
+  --radius-md:  calc(var(--cn-radius) * 0.8);
+  --radius-lg:  var(--cn-radius);
+  --radius-xl:  calc(var(--cn-radius) * 1.3);
+  --radius-2xl: calc(var(--cn-radius) * 1.6);
+  --radius-3xl: calc(var(--cn-radius) * 2);
+}
+
+/* Densidad: ajusta el padding vertical de las filas compactas */
+[data-density="compacta"] .py-2 {
+  padding-top: calc(0.35rem * var(--cn-density));
+  padding-bottom: calc(0.35rem * var(--cn-density));
+}
+[data-density="comoda"] .py-2 {
+  padding-top: calc(0.7rem * var(--cn-density));
+  padding-bottom: calc(0.7rem * var(--cn-density));
+}
+
+:focus-visible {
+  outline: 1.5px solid var(--cn-accent);
+  outline-offset: 1px;
+}
+::selection {
+  background: color-mix(in srgb, var(--cn-accent) 35%, transparent);
+}
+
+/* Accesibilidad: reduce animaciones cuando el usuario lo pide en el panel Pro */
+[data-reduce-motion="1"] *,
+[data-reduce-motion="1"] *::before,
+[data-reduce-motion="1"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.05ms !important;
+}
+
+/* ============================================================
+   v2.0 — MODO 8 GB (RENDIMIENTO EN EQUIPOS CON POCA RAM)
+   ============================================================
+   Activo cuando <html data-perf-mode="8gb"> (lo pone App.tsx al activar
+   el perfil "Modo 8 GB" del panel Pro o los Ajustes rápidos).
+   Qué se desactiva y por qué:
+     - backdrop-filter: es lo más caro de la interfaz. Con 3 paneles
+       translúcidos + blur continuo, la GPU integrada de un equipo de
+       8 GB dedica recursos a desenfocar en cada repintado (y el chat
+       repinta en cada token del streaming). Sin blur, el scroll del
+       chat deja de competir con la inferencia.
+     - Animaciones infinitas del cerebro y .animate-pulse: corren 60 fps
+       con drop-shadow (filtro caro) aunque no haya nada que hacer.
+     - background-attachment: fixed: fuerza repintar el fondo completo
+       en cada scroll.
+   Los spinners de "cargando" se conservan a propósito: si se congelan,
+   el usuario cree que la app se colgó.
+   ============================================================ */
+html[data-perf-mode="8gb"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: rgba(8, 12, 20, 0.94) !important;
+}
+html[data-perf-mode="8gb"] .brain-ring { display: none !important; }
+html[data-perf-mode="8gb"] .brain-icon {
+  animation: none !important;
+  filter: none !important;
+}
+html[data-perf-mode="8gb"] .animate-pulse { animation: none !important; }
+html[data-perf-mode="8gb"] body.has-brain-bg { background-attachment: scroll !important; }
+html[data-perf-mode="8gb"] .cn-glow {
+  box-shadow: none !important;
+  filter: none !important;
+}
+/* El texto sobre paneles casi opacos no necesita sombra */
+html[data-perf-mode="8gb"] .text-zinc-100,
+html[data-perf-mode="8gb"] .text-zinc-200,
+html[data-perf-mode="8gb"] .text-white {
+  text-shadow: none !important;
+}
+/* Scroll del chat: menos capas de composición */
+html[data-perf-mode="8gb"] .custom-scrollbar,
+html[data-perf-mode="8gb"] .custom-scrollbar-amber {
+  scroll-behavior: auto !important;
+  will-change: auto !important;
+}
+
+/* ============================================================
+   v2.0 — EDITOR WEB A PANTALLA COMPLETA
+   ============================================================
+   El contenedor del editor web entra en fullscreen nativo; necesita
+   fondo opaco propio porque en fullscreen el body queda detrás.
+   ============================================================ */
+.cn-web-editor:fullscreen {
+  background: #05070d !important;
+  width: 100vw;
+  height: 100vh;
+}
+.cn-web-editor:-webkit-full-screen {
+  background: #05070d !important;
+  width: 100vw;
+  height: 100vh;
+}
+.cn-web-editor:fullscreen .cn-web-editor-surface,
+.cn-web-editor:-webkit-full-screen .cn-web-editor-surface {
+  height: 100vh;
+}
+
+/* Tema claro del panel Pro: ajustes mínimos para que no quede texto
+   claro sobre fondo claro en los paneles translúcidos. */
+[data-theme="light"] body,
+[data-theme="light"] .app-shell-margin {
+  background: var(--cn-bg) !important;
+  color: #111827 !important;
+}
+[data-theme="light"] header,
+[data-theme="light"] aside {
+  color: #1f2937 !important;
+}
+
+/* ============================================================
+   v2.0 — FONDO VISIBLE EN LA IDE PRINCIPAL
+   ============================================================
+   Problema reportado: «en la pantalla principal del IDE no se ve el fondo,
+   en el editor web sí».
+
+   La causa: la imagen SÍ se pintaba (capa fija z-0), pero los paneles de la
+   IDE son casi opacos (bg-[#...]/85 y /90, más un backdrop-blur encima), así
+   que la tapaban por completo. En la pestaña del editor web el lienzo es
+   transparente, y por eso ahí sí se veía.
+
+   Solución: cuando hay fondo activo, <html> lleva data-wallpaper="on" y estos
+   paneles bajan su opacidad. Los selectores escapan las clases de Tailwind
+   (bg-[#020408]/85 → .bg-\[\#020408\]\/85) para que la regla les llegue.
+   ============================================================ */
+html[data-wallpaper="on"] .bg-\[\#020408\]\/85 { background-color: rgba(2, 4, 8, 0.55) !important; }
+html[data-wallpaper="on"] .bg-\[\#090d16\]\/85 { background-color: rgba(9, 13, 22, 0.55) !important; }
+html[data-wallpaper="on"] .bg-\[\#03060c\]\/80 { background-color: rgba(3, 6, 12, 0.50) !important; }
+html[data-wallpaper="on"] .bg-\[\#0a0e17\]\/80 { background-color: rgba(10, 14, 23, 0.50) !important; }
+html[data-wallpaper="on"] .bg-\[\#0a0e17\]\/90 { background-color: rgba(10, 14, 23, 0.62) !important; }
+html[data-wallpaper="on"] .bg-\[\#0d121c\]\/85 { background-color: rgba(13, 18, 28, 0.55) !important; }
+html[data-wallpaper="on"] .bg-\[\#070b14\]\/90 { background-color: rgba(7, 11, 20, 0.60) !important; }
+html[data-wallpaper="on"] .bg-\[\#080d18\]\/98 { background-color: rgba(8, 13, 24, 0.82) !important; }
+html[data-wallpaper="on"] .bg-\[\#060a14\]      { background-color: rgba(6, 10, 20, 0.55) !important; }
+/* El negro puro de fondo del chat pasa a ser un velo suave */
+html[data-wallpaper="on"] .bg-\[\#000000\]      { background-color: rgba(0, 0, 0, 0.30) !important; }
+/* Menos desenfoque: con imagen detrás, 8 px de blur la borronean y cuestan CPU */
+html[data-wallpaper="on"] .backdrop-blur-md { backdrop-filter: blur(2px) !important; -webkit-backdrop-filter: blur(2px) !important; }
+html[data-wallpaper="on"] .backdrop-blur-sm { backdrop-filter: blur(1px) !important; -webkit-backdrop-filter: blur(1px) !important; }
+/* El texto sigue legible porque el velo oscuro de AppBackground queda debajo */
+
+/* ============================================================
+   v2.0 — DESPLAZADORES VERTICALES EN TODOS LOS RECUADROS
+   ============================================================
+   Petición: "incluir en cada ventana o recuadro desplazadores, solo verticales".
+   Antes cada panel usaba `overflow-y-auto` sin control horizontal, y con
+   contenido ancho (código, tablas, rutas largas) aparecía scroll horizontal que
+   rompía el diseño en columnas estrechas. Ahora todo recuadro con scroll propio
+   scrollea SOLO en vertical, y el contenido ancho se ajusta o hace wrap.
+   ============================================================ */
+.cn-vscroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;               /* imprescindible dentro de flex para que scrollee */
+  overscroll-behavior: contain;
+}
+/* Barra vertical fina y coherente con el tema (nada de barras nativas gruesas) */
+.cn-vscroll::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+  width: 9px;
+  height: 0;                   /* anula la barra horizontal */
+}
+.cn-vscroll::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(127, 140, 170, 0.06);
+}
+.cn-vscroll::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(139, 152, 180, 0.35);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.cn-vscroll::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 152, 180, 0.6);
+  background-clip: content-box;
+}
+/* Firefox */
+.cn-vscroll, .custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 152, 180, 0.45) rgba(127, 140, 170, 0.06);
+}
+/* El contenido ancho se ajusta en vez de empujar scroll horizontal */
+.cn-vscroll pre,
+.cn-vscroll table {
+  max-width: 100%;
+  overflow-x: auto;            /* el bloque de código sí puede scrollear en horizontal, el panel no */
+}
+/* ============================================================
+   v2.0 — MÓVIL REAL EN EL PREVISUALIZADOR
+   ============================================================
+   Petición: "la vista móvil se ve muy larga y finita, ajústala a un móvil real".
+   Un móvil de verdad es 390 x 844 (iPhone 14 / Pixel 8), no una tira estrecha.
+   El marco mantiene esa proporción y se escala si no cabe en el ancho disponible.
+   ============================================================ */
+.cn-device-frame {
+  width: 390px;
+  height: 844px;
+  max-width: 100%;
+  border-radius: 38px;
+  border: 10px solid #0f172a;
+  box-shadow: 0 0 0 2px #1e293b, 0 24px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  background: #fff;
+  flex: 0 0 auto;
+}
+.cn-device-notch {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 26px;
+  border-radius: 999px;
+  background: #0f172a;
+  z-index: 5;
+}
+
+/* v2.0 — Regla global: cualquier recuadro con scroll vertical propio NO genera
+   barra horizontal (petición: "solo verticales"). Una sola regla cubre todos los
+   paneles de la IDE sin tocar 6 componentes distintos. */
+.overflow-y-auto {
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   v2.0 — TRANSPARENCIA DEL MÓDULO Y EL CHAT (deslizador en Pro › Fondo)
+   ============================================================
+   El chat se veía rosado por la mezcla de su fondo translúcido con la imagen del
+   fondo. Estas reglas sustituyen los valores fijos por la variable que controla
+   el deslizador, así el usuario decide cuánto se transparenta (0 = sólido).
+   Se aplican SOLO cuando hay fondo activo (html[data-wallpaper="on"]).
+   ============================================================ */
+html[data-wallpaper="on"] .bg-\[\#020408\]\/85 { background-color: rgb(2 4 8 / var(--cn-module-opacity, 0.55)) !important; }
+html[data-wallpaper="on"] .bg-\[\#090d16\]\/85 { background-color: rgb(9 13 22 / var(--cn-module-opacity, 0.55)) !important; }
+html[data-wallpaper="on"] .bg-\[\#03060c\]\/80 { background-color: rgb(3 6 12 / var(--cn-module-opacity, 0.55)) !important; }
+html[data-wallpaper="on"] .bg-\[\#0a0e17\]\/80 { background-color: rgb(10 14 23 / var(--cn-module-opacity, 0.55)) !important; }
+html[data-wallpaper="on"] .bg-\[\#0a0e17\]\/90 { background-color: rgb(10 14 23 / var(--cn-module-opacity, 0.62)) !important; }
+html[data-wallpaper="on"] .bg-\[\#0d121c\]\/85 { background-color: rgb(13 18 28 / var(--cn-module-opacity, 0.55)) !important; }
+html[data-wallpaper="on"] .bg-\[\#070b14\]\/90 { background-color: rgb(7 11 20 / var(--cn-module-opacity, 0.6)) !important; }
+/* El chat y los mensajes: mismo criterio, un poco más sólidos para que el texto
+   se lea bien aunque el fondo sea muy claro. */
+html[data-wallpaper="on"] .bg-\[\#000000\] { background-color: rgb(0 0 0 / calc(var(--cn-module-opacity, 0.55) * 0.7)) !important; }
+/* Un toque menos de desenfoque: con 55 % de transparencia basta, y el blur es lo
+   más caro en equipos de 8 GB. */
+html[data-wallpaper="on"] .backdrop-blur-md { backdrop-filter: blur(3px) !important; }
+html[data-wallpaper="on"] .backdrop-blur-sm { backdrop-filter: blur(2px) !important; }
+
+/* ============================================================
+   v2.0 — LOS 4 DESPLAZADORES VERTICALES
+   ============================================================
+   Petición: "deben haber 4 desplazadores: chat principal, árbol de archivos,
+   editor del proyecto y chat del editor web, todos verticales".
+   Los cuatro contenedores ya usan `overflow-y-auto` / `overflow-auto`, así que
+   una sola regla los cubre a todos: barra vertical fina, nunca horizontal, y
+   desplazamiento suave dentro del propio recuadro.
+   ============================================================ */
+.overflow-y-auto,
+.overflow-auto {
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 152, 180, 0.45) rgba(127, 140, 170, 0.06);
+  overscroll-behavior: contain;
+}
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+  width: 9px;
+  height: 0;
+}
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-auto::-webkit-scrollbar-track {
+  background: rgba(127, 140, 170, 0.06);
+}
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: rgba(139, 152, 180, 0.38);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 152, 180, 0.62);
+  background-clip: content-box;
+}

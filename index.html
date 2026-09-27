@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ============================================================
+         v0.9 — EL ICONO DE LA INTERFAZ (el que FALTABA)
+         ------------------------------------------------------------
+         Hasta ahora no había ni una etiqueta `icon` aquí. Consecuencia real:
+         la pestaña del navegador y el acceso directo mostraban el icono
+         genérico, y el producto era el único sitio de la pantalla sin su
+         propia marca. Es literalmente «el rincón bien visible» en pequeño.
+         Los tres se declaran porque cada navegador usa uno distinto:
+           · .ico  → Chromium/Firefox en escritorio (y el icono de la pestaña)
+           · .png  → navegadores modernos y pantallas de alta densidad
+           · apple-touch-icon → iOS/macOS al guardar en el escritorio
+         ============================================================ -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/icono-cerebronico.png" />
+    <link rel="apple-touch-icon" href="/icono-cerebronico.png" />
+    <meta name="theme-color" content="#05070d" />
+    <!-- v2.3.1 — El título estático lo pisa main.tsx con IDE_BRAND al arrancar,
+         pero mientras carga (y en la pestaña del navegador de una captura) es LO
+         ÚNICO que se ve: un «V2.1» aquí es exactamente la mentira que la regla
+         de fuente única quiere matar.
+         v8.0.1 — Auditoría de la discrepancia «cabecera V8.0.0 / menú CN
+         V1.0.3»: aquí vivían CUATRO literales de versión más (title, description,
+         og:title, og:description), cada uno con una versión distinta (v1.0, v1.0,
+         v1.0, v2.3). Ninguno se ve dentro del IDE, pero los tres últimos son los
+         que ven Google, WhatsApp y Discord al compartir enlace: la versión más
+         pública del proyecto era la más vieja. Quedan alineados a la fuente
+         única. -->
+    <title>CerebróNico V1.16.0</title>
+    <meta name="description" content="CerebróNico V1.16.0 — Entorno de desarrollo con IA local (Ollama) y cloud, sandbox en vivo, puente PC, motor de planes con imágenes gratis, 50 entidades del consejo (10 espejos), complementos cn.*, forja de plugins desde el chat, fondo animado y métrica real de inferencia. Por Mario Nicolas Quintero." />
+    <meta property="og:title" content="CerebróNico V1.16.0" />
+    <meta property="og:description" content="CerebróNico V1.16.0 — Entorno de desarrollo con IA local (Ollama), sandbox en vivo, puente PC, motor de planes con imágenes gratis y soporte OpenAI/Gemini/OpenRouter. Por Mario Nicolas Quintero." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        // Suppress expected HMR / Vite WebSocket disconnection notices in sandboxed preview
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && (event.reason ? (event.reason.message || String(event.reason)) : '');
+          if (
+            typeof reason === 'string' &&
+            (reason.indexOf('WebSocket') !== -1 ||
+             reason.indexOf('failed to connect to websocket') !== -1 ||
+             reason.indexOf('vite') !== -1)
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+
+        window.addEventListener('error', function(event) {
+          var msg = event && (event.message || '');
+          if (
+            typeof msg === 'string' &&
+            (msg.indexOf('WebSocket') !== -1 ||
+             msg.indexOf('failed to connect to websocket') !== -1)
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+
+        try {
+          // Prevent "Cannot set property fetch of #<Window> which has only a getter" in sandboxed iframes
+          var rawFetch = window.fetch ? window.fetch.bind(window) : undefined;
+          var currentFetch = rawFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return currentFetch;
+            },
+            set: function(fn) {
+              if (typeof fn === 'function') {
+                currentFetch = fn;
+              }
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // Gracefully fallback
+        }
+      })();
+    </script>
+
+    <!-- ============================================================
+         v1.6.29 — RED DE SEGURIDAD DE ESCALA (no se puede quedar sin salida)
+         ------------------------------------------------------------
+         Con el tamaño global al máximo o el aspecto de la paleta al 220 %, el
+         desplegable MENÚ CN (w-72 = 18 rem) crecía más alto que la ventana y
+         llevaba `overflow-hidden` SIN altura máxima: «Paleta de colores» y
+         «Configuración PRO» caían fuera de la pantalla y eran inalcanzables —
+         y sin llegar a la paleta no hay forma de bajar el tamaño.
+         Estas dos piezas son la salida (van acá porque el cliente se sirve
+         compilado; el arreglo de fondo del Header.tsx es aparte):
+           1. CSS: el desplegable gana altura máxima + scroll.
+           2. Rescate: Ctrl + Alt + 0, o  ?cn-escala=reset  en la URL.
+         ============================================================ -->
+    <style>
+      header[data-cn="cabecera"] .absolute.left-0.top-full.mt-1.w-72 {
+        max-height: calc(100vh - 6rem) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+      }
+    </style>
+    <script>
+      (function () {
+        var CLAVES = ["codigo0_app_font_size", "cn.aspecto.v1"];
+        function rescatar(origen) {
+          try {
+            CLAVES.forEach(function (k) {
+              localStorage.removeItem(k);
+            });
+          } catch (e) {
+            /* sin localStorage: se recarga igual */
+          }
+          console.log("[CerebroNico] Escala restablecida (" + origen + ").");
+          location.replace(location.pathname);
+        }
+        try {
+          if (/[?&]cn-escala=reset/.test(location.search)) {
+            rescatar("URL");
+            return;
+          }
+        } catch (e) {
+          /* sin location: seguimos con el teclado */
+        }
+        window.addEventListener(
+          "keydown",
+          function (e) {
+            if (e.ctrlKey && e.altKey && (e.key === "0" || e.code === "Digit0" || e.keyCode === 48)) {
+              e.preventDefault();
+              rescatar("Ctrl+Alt+0");
+            }
+          },
+          true
+        );
+      })();
+    </script>
+    <!-- v1.6.30 — Limpiar el sandbox sin botón: Ctrl + Alt + L → /api/fs/clear-all
+         (borra los restos de sesiones anteriores y conserva node_modules y el
+         estado). Es la salida cuando el árbol quedó mezclado y el build murió
+         con «"X" is not exported by Y». Después: «Arrancar ahora». -->
+    <script>
+      (function () {
+        function limpiar(origen) {
+          fetch("/api/fs/clear-all", { method: "POST", headers: { "Content-Type": "application/json" } })
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (d) {
+              console.log("[CerebroNico] Sandbox limpiado (" + origen + ").", d);
+              alert(
+                "Sandbox limpiado (" + origen + ").\n" +
+                  "Borrados: " + (d.deleted || 0) + " archivo(s) · Preservados: " + (d.preserved || 0) + " (node_modules y estado).\n" +
+                  "Ahora pulsá «Arrancar ahora»: el sync vuelve a escribir el proyecto desde el editor."
+              );
+            })
+            .catch(function (e) {
+              alert("No se pudo limpiar el sandbox: " + e);
+            });
+        }
+        window.addEventListener(
+          "keydown",
+          function (e) {
+            if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L" || e.code === "KeyL")) {
+              e.preventDefault();
+              limpiar("Ctrl+Alt+L");
+            }
+          },
+          true
+        );
+      })();
+    </script>
+  </head>
+  <body class="bg-[#0b0f17] text-zinc-100 overflow-hidden select-text antialiased font-sans">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

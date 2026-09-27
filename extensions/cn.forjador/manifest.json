@@ -1,0 +1,26 @@
+{
+  "id": "cn.forjador",
+  "name": "Forjador · datos y mock vivos",
+  "version": "1.0.0",
+  "description": "De un esquema en una línea (nombre:string, edad:int(18,90), pais:opc[ES|MX|AR]…) a datos falsos reproducibles por semilla: escribe datos/<tabla>.json y un mock-server.mjs de node:http sin dependencias para probar la UI antes de existir backend.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "forjador.panel", "title": "Forjador", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "forjador.datos", "title": "Forjar dataset + mock", "slash": "forjar" } ],
+    "tools": [ {
+      "name": "cn_forjador_datos",
+      "description": "Genera datos de prueba deterministas (misma semilla = mismos datos) y un servidor mock para la maqueta. Usar al construir UI que necesita datos aún inexistentes.",
+      "cheap": true,
+      "handler": "command:forjador.datos",
+      "parameters": { "type": "object", "properties": {
+        "esquema": { "type": "string", "description": "campo:tipo separados por coma, ej nombre:string,edad:int(18,90),vip:bool" },
+        "tabla": { "type": "string", "description": "nombre del dataset (opcional: datos)" },
+        "n": { "type": "number", "description": "filas (opcional: 20, tope 500)" },
+        "semilla": { "type": "string", "description": "semilla (opcional: cerebro)" }
+      }, "required": ["esquema"] }
+    } ]
+  }
+}

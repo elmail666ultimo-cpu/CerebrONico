@@ -1,0 +1,35 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.busqueda",
+  "categoria": {
+    "id": "busqueda",
+    "nombre": "Búsqueda full-text",
+    "icono": "🔎",
+    "descripcion": "Motores de búsqueda: Elasticsearch, OpenSearch. Índice invertido, analizadores, relevancia."
+  },
+  "espejo": {
+    "id": "servidor.busqueda",
+    "categoria": "busqueda",
+    "nombre": "Espejo · Servidor de Búsqueda",
+    "senales": [
+      "busqueda",
+      "buscar",
+      "indice invertido",
+      "full text",
+      "fulltext",
+      "elasticsearch",
+      "opensearch",
+      "relevancia",
+      "analizador",
+      "texto",
+      "buscador",
+      "match"
+    ],
+    "descripcion": "Sugiere el mapping y el analizador por campo para un motor full-text, con boosts de relevancia.",
+    "contrato": {
+      "entrada": "campos: [{ nombre, tipo }]",
+      "salida": "mapping ({}), analizadores ({}), boosts ({}), avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "5bc4a3405c6f26cb43ce30779f07ca7aa437317be00a3bf39a21710e6ce9ef69"
+}

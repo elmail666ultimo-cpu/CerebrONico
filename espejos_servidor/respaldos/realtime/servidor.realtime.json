@@ -1,0 +1,35 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.realtime",
+  "categoria": {
+    "id": "realtime",
+    "nombre": "Tiempo real",
+    "icono": "⚡",
+    "descripcion": "Comunicación en tiempo real: WebSocket, SSE. Streaming, eventos, suscripciones, backpressure."
+  },
+  "espejo": {
+    "id": "servidor.realtime",
+    "categoria": "realtime",
+    "nombre": "Espejo · Servidor en Tiempo Real",
+    "senales": [
+      "websocket",
+      "sse",
+      "tiempo real",
+      "realtime",
+      "streaming",
+      "stream",
+      "notificaciones",
+      "eventos",
+      "evento",
+      "suscripcion",
+      "suscripciones",
+      "colaborativo"
+    ],
+    "descripcion": "Recomienda el transporte (SSE/WebSocket) y estima conexiones y backpressure según clientes y mensajes por segundo.",
+    "contrato": {
+      "entrada": "clientes: int · mensajesPorSegundo: number",
+      "salida": "transporte, conexiones, mensajesTotales, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "d0a1333b2df96fc0ec02ad1e929be2301eae9c44e884f16ca6c350f76f4e1f52"
+}

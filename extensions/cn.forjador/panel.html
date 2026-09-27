@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Forjador</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#34d399}small{color:#64748b}input{background:#141b2b;color:#e2e8f0;border:1px solid #1f3a5f;border-radius:6px;padding:4px 8px;margin:0 6px 8px 0}button{background:#16233a;color:#6ee7b7;border:1px solid #2f5d4a;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Forjador <small>cn.forjador · datos reproducibles + mock sin backend</small></h4>
+<input id="esq" placeholder="nombre:string,edad:int(18,90),vip:bool" size="42"><input id="n" type="number" value="20" style="width:64px"><input id="sem" value="cerebro" size="10">
+<button id="go">Forjar datos + mock</button>
+<pre id="out">Esquema en una línea → datos/&lt;tabla&gt;.json + mock para la maqueta.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(typeof m.args==="string"?{esquema:m.args}:(m.args||{}));}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+function prng(s){var a=s>>>0;return function(){a=(a+0x6d2b79f5)>>>0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function hash(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return h>>>0;}
+var SYL="ba,na,la,se,ti,ro,mo,ca,pe,vi,zo,ku,fe,li,to,nia,era,ino".split(",");
+function una(rnd){var n=3+Math.floor(rnd()*3),s="";for(var i=0;i<n;i++)s+=SYL[Math.floor(rnd()*SYL.length)];return s.charAt(0).toUpperCase()+s.slice(1);}
+var TIPOS=/^([a-z_]+)(?::([a-z_]+)(\((-?[0-9.]+)(?:,(-?[0-9.]+))?(?:,[a-z0-9|]+)?\))?)?$/i;
+H["forjador.datos"]=async function(a){
+  var esquema=String(a.esquema||(typeof a.texto==="string"?a.texto:"")||"").trim();
+  if(!esquema) return {ok:false,motivo:"falta «esquema» (ej: nombre:string,edad:int(18,90),pais:opc[ES,MX],vip:bool,mail:email)"};
+  var campos=[],buf="",prof=0; // la coma solo corta fuera de (rango) y [opciones]
+  for(const ch of esquema){ if(ch==="("||ch==="[")prof++; else if(ch===")"||ch==="]")prof--;
+    if(ch===","&&prof===0){campos.push(buf);buf="";}else buf+=ch; }
+  if(buf.trim())campos.push(buf);
+  if(prof!==0)return{ok:false,motivo:"paréntesis o corchete sin cerrar en el esquema (profundidad final "+prof+")."};
+  campos=campos.map(function(c){return c.trim();}).filter(Boolean);
+  var parsed=[];
+  for(const c of campos){
+    var m=TIPOS.exec(c); if(!m) return {ok:false,motivo:"campo inválido «"+c+"» (usa nombre:tipo o nombre:tipo(a,b) o nombre:opc[x|y])"};
+    parsed.push({nombre:m[1],tipo:(m[2]||"string").toLowerCase(),a:m[4]!==undefined?Number(m[4]):null,b:m[5]!==undefined?Number(m[5]):null,cruda:c});
+  }
+  var tabla=(a.tabla||"datos").toLowerCase().replace(/[^a-z0-9_-]/g,"")||"datos";
+  var n=Math.max(1,Math.min(500,Number(a.n)||20)), semilla=String(a.semilla||"cerebro");
+  var rnd=prng(hash(semilla+":"+tabla));
+  var filas=[];
+  for(var i=0;i<n;i++){
+    var fila={id:i+1};
+    for(const p of parsed){
+      var t=p.tipo;
+      if(t==="int") fila[p.nombre]=Math.floor(rnd()*(Math.max(p.a===null?0:p.a,p.b===null?999:p.b)-(p.a===null?0:p.a))+(p.a===null?0:p.a));
+      else if(t==="decimal") fila[p.nombre]=+( (rnd()*((p.b===null?100:p.b)-(p.a===null?0:p.a))+(p.a===null?0:p.a)) .toFixed(2));
+      else if(t==="bool") fila[p.nombre]=rnd()<0.5;
+      else if(t==="email") fila[p.nombre]=("u"+(i+1)+"@ejemplo.forjado");
+      else if(t==="fecha") fila[p.nombre]="20"+(24+Math.floor(rnd()*2))+"-"+String(1+Math.floor(rnd()*12)).padStart(2,"0")+"-"+String(1+Math.floor(rnd()*28)).padStart(2,"0");
+      else if(t==="tel") fila[p.nombre]="+34"+String(600000000+Math.floor(rnd()*99999999));
+      else if(t==="opc"){var alts=(p.cruda.match(/\[([^\]]+)\]/)||[,"a,b"])[1].split(/[|,]/);fila[p.nombre]=alts[Math.floor(rnd()*alts.length)].trim();}
+      else fila[p.nombre]=una(rnd)+" "+una(rnd);
+    }
+    filas.push(fila);
+  }
+  await call("workspace.writeFile",{path:"datos/"+tabla+".json",content:JSON.stringify(filas,null,1)+"\n"});
+  await call("workspace.writeFile",{path:"datos/mock-"+tabla+".mjs",content:"// mock "+tabla+" — cn.forjador · node datos/mock-"+tabla+".mjs → :4000\nimport http from \"node:http\";\nimport fs from \"node:fs\";\nconst filas=JSON.parse(fs.readFileSync(new URL(\"./"+tabla+".json\",import.meta.url),\"utf8\"));\nhttp.createServer((req,res)=>{\n  if(req.url==\"/api/"+tabla+"\"){res.writeHead(200,{\"Content-Type\":\"application/json\"});return res.end(JSON.stringify({ok:true,total:filas.length,datos:filas}));}\n  res.writeHead(404,{\"Content-Type\":\"application/json\"});res.end(JSON.stringify({ok:false,motivo:\"solo existe /api/"+tabla+"\"}));\n}).listen(4000,()=>console.error(\"mock "+tabla+" en :4000\"));\n"});
+  var ejemplo=filas[0];
+  out(tabla+": "+n+" filas (semilla "+semilla+") · datos/"+tabla+".json + mock");
+  return {tabla:tabla,filas:n,semilla:semilla,archivos:["datos/"+tabla+".json","datos/mock-"+tabla+".mjs"],ejemplo:ejemplo,repetible:"misma semilla = mismos datos"};
+};
+document.getElementById("go").onclick=function(){H["forjador.datos"]({esquema:document.getElementById("esq").value,n:Number(document.getElementById("n").value),semilla:document.getElementById("sem").value}).then(out);};
+</script>
+</body></html>

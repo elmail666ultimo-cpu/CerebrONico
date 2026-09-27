@@ -1,0 +1,20 @@
+{
+  "id": "cn.aduana",
+  "name": "Aduana · puerta de entrega",
+  "version": "1.0.0",
+  "description": "Nada sale del proyecto sin pasar la aduana: genera ENTREGA/MANIFIESTO_SHA256.txt (huella, tamaño y ruta de cada archivo, la convención del propio CerebroNico) y BLOQUEA con motivo si huele a secretos (.env, API keys, claves privadas).",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "aduana.panel", "title": "Aduana", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "aduana.revisar", "title": "Pasar la aduana y firmar manifiesto", "slash": "aduana" } ],
+    "tools": [ {
+      "name": "cn_aduana_revisar",
+      "description": "Verifica ausencia de secretos y firma el manifiesto sha256 de los archivos para entrega. Último paso obligatorio antes de dar por terminado cualquier trabajo.",
+      "handler": "command:aduana.revisar",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    } ]
+  }
+}

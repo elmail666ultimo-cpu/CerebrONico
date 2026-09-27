@@ -1,0 +1,32 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.clave_valor",
+  "categoria": {
+    "id": "clave_valor",
+    "nombre": "Clave-Valor / Caché",
+    "icono": "🔑",
+    "descripcion": "Almacenes clave-valor: Redis, Memcached. TTL, patrones de clave, memoria, expiración."
+  },
+  "espejo": {
+    "id": "servidor.clave_valor",
+    "categoria": "clave_valor",
+    "nombre": "Espejo · Servidor Clave-Valor",
+    "senales": [
+      "redis",
+      "cache",
+      "clave valor",
+      "clave-valor",
+      "ttl",
+      "memoria",
+      "expiracion",
+      "key value",
+      "memcached"
+    ],
+    "descripcion": "Valida un patrón de clave, recomienda TTL y estima memoria según accesos y tamaño de valor. Puro y sin red.",
+    "contrato": {
+      "entrada": "patron: string · ttlSegundos? · bytesPorValor? · accesosPorSegundo?",
+      "salida": "patron, valido, ttlRecomendado, memoriaEstimadaMB, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "b7e2e8e5de1e42e98959ea902481ddefe804796b5f3ebd82365116e9cfca9019"
+}

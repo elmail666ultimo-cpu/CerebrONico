@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+*.tsbuildinfo
+
+# Runtime logs (created by server.ts startAgentBridge)
+.bridge_5000.log
+
+# Sandbox project directory (created at runtime)
+.proyectos/
+
+# Snapshots e informes del Quirófano (scripts/quirofano-cli.mjs)
+.revisiones/
+
+# ============================================================
+# SECRETOS — NO QUITAR NUNCA DE ESTA LISTA
+# ------------------------------------------------------------
+# `.cerebro-db/boveda.json` guarda la bóveda de claves, y
+# `espejos-salud.json` el historial de uso. Todo eso vive en la raíz de datos
+# (por defecto `.proyectos/`, o la que diga PROJECT_DIR: C:\Cerebronico).
+# Si algún día la raíz cae DENTRO del repositorio, estas dos líneas son lo
+# único que impide que un `git add .` publique tus claves.
+# ============================================================
+.cerebro-db/
+.cerebronico/
+*credenciales*.json
+*secretos*.json
+*.key
+*.pem
+
+# Environment
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+_buggy_server.mjs
+"dist_electron/" 
+"dist_electron/" 

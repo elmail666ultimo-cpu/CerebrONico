@@ -1,0 +1,25 @@
+{
+  "id": "cn.pintor",
+  "name": "Pintor · paleta aplicada",
+  "version": "1.0.0",
+  "description": "De un HEX base a tokens listos: armonías HSL (complementaria, tríada, análoga), variables CSS --c-* y — clave — inyecta el <link> de la paleta en cada *.html para que se VEA en la preview sin que nadie lo recuerde. Pieles .cn aparte. El espejo artes calcula; Pintor escribe y conecta.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "pintor.panel", "title": "Pintor", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "pintor.aplicar", "title": "Aplicar paleta desde un color base", "slash": "pintar" } ],
+    "tools": [ {
+      "name": "cn_pintor_aplicar",
+      "description": "Escribe cn-palette.css (o una piel .cn) con la paleta HSL derivada del color base e inyecta su <link> en cada *.html del proyecto. Usar al fijar la identidad visual: tras llamarla, la preview ya muestra los colores.",
+      "cheap": true,
+      "handler": "command:pintor.aplicar",
+      "parameters": { "type": "object", "properties": {
+        "base": { "type": "string", "description": "color HEX base, ej #3a6ea5" },
+        "destino": { "type": "string", "description": "ruta de salida (opcional: cn-palette.css)" },
+        "formato": { "type": "string", "description": "css | cn (opcional: css)" }
+      }, "required": ["base"] }
+    } ]
+  }
+}

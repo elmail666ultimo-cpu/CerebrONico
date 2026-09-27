@@ -1,0 +1,36 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.objetos",
+  "categoria": {
+    "id": "objetos",
+    "nombre": "Objetos / Blobs",
+    "icono": "📦",
+    "descripcion": "Almacenamiento de objetos: S3, MinIO. Buckets, prefijos, subida/descarga, ciclo de vida."
+  },
+  "espejo": {
+    "id": "servidor.objetos",
+    "categoria": "objetos",
+    "nombre": "Espejo · Servidor de Objetos",
+    "senales": [
+      "s3",
+      "minio",
+      "blob",
+      "blobs",
+      "objeto",
+      "objetos",
+      "archivo",
+      "archivos",
+      "almacenamiento",
+      "bucket",
+      "subir",
+      "descargar",
+      "multimedia"
+    ],
+    "descripcion": "Diseña la distribución de prefijos de un bucket y una política de ciclo de vida según archivos y tamaño medio.",
+    "contrato": {
+      "entrada": "archivos: int · tamanoPromedioMB: number",
+      "salida": "bucket, prefijos ([]), ciclosDeVida ([]), tamanoTotalGB, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "a9ce0cbb91b0ed70f4e3d9c10b8de303bb9532cfaf1a5e3b99f92c57e6fe589e"
+}

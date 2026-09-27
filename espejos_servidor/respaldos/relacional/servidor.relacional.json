@@ -1,0 +1,43 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.relacional",
+  "categoria": {
+    "id": "relacional",
+    "nombre": "Relacional (SQL)",
+    "icono": "🗄️",
+    "descripcion": "Bases SQL: PostgreSQL, MySQL, SQLite, SQLAlchemy. Tablas, claves foráneas, transacciones ACID, normalización."
+  },
+  "espejo": {
+    "id": "servidor.relacional",
+    "categoria": "relacional",
+    "nombre": "Espejo · Servidor Relacional",
+    "senales": [
+      "sql",
+      "postgres",
+      "postgresql",
+      "mysql",
+      "sqlite",
+      "tabla",
+      "tablas",
+      "llave foranea",
+      "llave primaria",
+      "clave foranea",
+      "transaccion",
+      "acid",
+      "join",
+      "indice",
+      "normalizacion",
+      "esquema",
+      "ddl",
+      "orm",
+      "sqlalchemy",
+      "relacional"
+    ],
+    "descripcion": "Genera DDL SQL determinista a partir de tablas y columnas, valida claves foráneas y avisa sobre normalización. No ejecuta SQL: solo estructura.",
+    "contrato": {
+      "entrada": "tablas: [{ nombre, columnas: [{ nombre, tipo, pk?, fk?: {tabla, columna} }] }]",
+      "salida": "ddl (texto), tablas, clavesForaneas, avisos ([]) | { ok:false, motivo }"
+    }
+  },
+  "sha256": "0a0f5bf0475b948e9f05ec3811911a64e4676deaad9be81350293a7a214df51a"
+}

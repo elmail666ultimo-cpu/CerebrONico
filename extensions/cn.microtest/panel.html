@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Microtest</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#38bdf8}small{color:#64748b}button{background:#16233a;color:#7dd3fc;border:1px solid #1f4a5f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Microtest <small>cn.microtest · smoke determinista con veredicto casa</small></h4>
+<button id="go">Generar y correr /smoke</button>
+<pre id="out">Escribe tests/smoke.mjs (asserts de estructura) y lo corre: node, sin dependencias.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+H["microtest.correr"]=async function(){
+  var files=((await call("workspace.getFiles"))||[]).filter(function(f){return !/^tests\/|^node_modules/.test(f.path);});
+  if(!files.length) return {ok:false,motivo:"workspace vacío: no hay estructura que smokear."};
+  var rutas=files.map(function(f){return f.path;});
+  var jsons=rutas.filter(function(p){return /\.json$/i.test(p);});
+  var script="/**\n * tests/smoke.mjs — generado por cn.microtest (re-generar: /smoke).\n * Comprueba ESTRUCTURA: lo que existe, lo que parsea, lo que falta.\n */\nimport fs from \"node:fs\";\n\nlet correctas = 0;\nconst fallos = [];\nfunction comprobar(nombre, cond, detalle) {\n  if (cond) correctas++;\n  else fallos.push(nombre + (detalle ? \" :: \" + detalle : \"\"));\n}\n\nconst ESPERADOS = " + JSON.stringify(rutas) + ";\nfor (const p of ESPERADOS) comprobar(\"existe \" + p, fs.existsSync(p));\n\n" + (jsons.length ? "const JSONS = " + JSON.stringify(jsons) + ";\nfor (const p of JSONS) {\n  try { JSON.parse(fs.readFileSync(p, \"utf8\")); comprobar(\"json válido \" + p, true); }\n  catch (e) { comprobar(\"json válido \" + p, false, e.message); }\n}" : "// sin jsons") + "\n\n" + (/package\.json/.test(rutas.join(" ")) ? "const pkg = JSON.parse(fs.readFileSync(\"package.json\", \"utf8\"));\ncomprobar(\"package.json sin TODO\", !/TODO/.test(JSON.stringify(pkg)));" : "") + "\n\nconst hayEntrada = fs.existsSync(\"index.html\") || fs.existsSync(\"server.mjs\") || fs.existsSync(\"server.ts\") || fs.existsSync(\"main.py\");\ncomprobar(\"hay punto de entrada (index.html | server.mjs | server.ts | main.py)\", hayEntrada);\n\nconsole.log(`\\n═══ SMOKE: ${correctas} correctas · ${fallos.length} fallidas ═══`);\nfor (const f of fallos) console.log(\"  FALLO →\", f);\nprocess.exit(fallos.length ? 1 : 0);\n";
+  await call("workspace.writeFile",{path:"tests/smoke.mjs",content:script});
+  var r;
+  try { r=await call("workspace.exec",{command:"node tests/smoke.mjs"}); }
+  catch(e){ return {ok:false,motivo:"smoke escrito pero node no respondió por el puente exec: "+String((e&&e.message)||e)}; }
+  var salida=typeof r==="string"?r:JSON.stringify(r,null,1);
+  var veredicto=String(salida).match(/SMOKE:\s*(\d+)\s+correctas\s*·\s*(\d+)\s+fallidas/);
+  out(salida.length>1200?salida.slice(0,1200)+"…":salida);
+  if(!veredicto) return {ok:false,motivo:"el smoke corrió pero su salida no trae veredicto (¿ejec sin node?): revisar",salida:salida.slice(0,400)};
+  return {correctas:Number(veredicto[1]),fallidas:Number(veredicto[2]),test:"tests/smoke.mjs"};
+};
+document.getElementById("go").onclick=function(){H["microtest.correr"]({}).then(out);};
+</script>
+</body></html>

@@ -1,0 +1,20 @@
+{
+  "id": "cn.microtest",
+  "name": "Microtest · humo en tres segundos",
+  "version": "1.0.0",
+  "description": "Escribe tests/smoke.mjs (estilo casa: comprobar(), veredicto, 0 fallos) con asserts de estructura —JSON parseable, archivos obligatorios presentes, package.json sano— y lo corre con node vía exec. Lo que el crítico mira por encima, el smoke lo ejecuta.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "workspace.write", "workspace.exec", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "microtest.panel", "title": "Microtest", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "microtest.correr", "title": "Generar y correr el smoke", "slash": "smoke" } ],
+    "tools": [ {
+      "name": "cn_microtest_correr",
+      "description": "Regenera tests/smoke.mjs según el estado real del workspace, lo ejecuta y devuelve el veredicto (N correctas · M fallidas). Usar tras tandas de cambios.",
+      "handler": "command:microtest.correr",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    } ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "id": "cerebronico.panel-ejemplo",
+  "name": "Panel de ejemplo + herramientas",
+  "version": "1.0.0",
+  "description": "Extensión de ejemplo: abre su propio panel en una pestaña junto al Chat y aporta DOS herramientas al modelo (contar palabras y generar un informe del proyecto). Sirve de plantilla para escribir extensiones propias.",
+  "author": "CerebroNico",
+  "main": "panel.html",
+  "icon": "icon.svg",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.read", "chat.read", "tools.register"],
+  "contributes": {
+    "panels": [
+      { "id": "ejemplo.panel", "title": "Panel de ejemplo", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" }
+    ],
+    "commands": [
+      { "id": "ejemplo.contarPalabras", "title": "Contar palabras del workspace", "slash": "contar" },
+      { "id": "ejemplo.informe", "title": "Informe del proyecto", "slash": "informe" }
+    ],
+    "tools": [
+      {
+        "name": "ext_contar_palabras",
+        "description": "Cuenta palabras y archivos del workspace actual. Úsala cuando el usuario pregunte el tamaño del proyecto.",
+        "cheap": true,
+        "handler": "command:ejemplo.contarPalabras",
+        "parameters": { "type": "object", "properties": {}, "required": [] }
+      },
+      {
+        "name": "ext_informe_proyecto",
+        "description": "Genera un informe de una línea por archivo del workspace (nombre y número de líneas).",
+        "handler": "command:ejemplo.informe",
+        "parameters": {
+          "type": "object",
+          "properties": { "limite": { "type": "number", "description": "máximo de archivos a listar (por defecto 20)" } },
+          "required": []
+        }
+      }
+    ],
+    "languages": [ { "id": "cerebronico-logs", "extensions": [".cnlog"] } ]
+  }
+}

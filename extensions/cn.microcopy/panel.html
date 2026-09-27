@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Microcopy</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#7dd3fc}small{color:#64748b}button{background:#16233a;color:#7dd3fc;border:1px solid #1f3a5f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Microcopy <small>cn.microcopy · mide textos de interfaz, propone tono</small></h4>
+<button id="go">Analizar workspace</button>
+<pre id="out">Los textos que ve el usuario también se auditan.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+function silabas(p){return Math.max(1,(p.match(/[aeiouáéíóúàâäèéêëìíîïòóôöùúû]+/gi)||[]).length);}
+function flesch(words,texto){var frases=Math.max(1,(texto.match(/[.!?…]+/g)||[]).length);var s=0,w=0;words.forEach(function(p){s+=silabas(p);w++;});
+ return Math.max(0,Math.min(100,Math.round(206.835-1.015*(w/frases)-84.6*(s/w))));}
+var FILTRO=/^(function|return|const|let|var|import|export|await|if|else|class|http|www|div|span|json|null|true|false|\.\.\.|<\/?[a-z]|\{|\})/i;
+H["microcopy.ana"]=async function(a){
+  var files=(await call("workspace.getFiles"))||[];
+  var ruta=a&&a.ruta?String(a.ruta):null;
+  var textos=[];
+  for(const f of files){
+    if(ruta&&f.path!==ruta) continue;
+    if(!/\.(html?|jsx?|tsx?|vue|svelte)$/i.test(f.path)) continue;
+    var contenido=String(f.content||"");
+    var re=/>\s*([^<>{}[\]\n"`]{4,160}?)\s*</g,m;
+    while((m=re.exec(contenido))&&textos.length<60){
+      var t=m[1].trim();
+      if(t.length<4||/\{\}/.test(t)) continue;
+      var w=t.split(/\s+/).filter(Boolean); if(!w.length||FILTRO.test(w[0])) continue;
+      textos.push({archivo:f.path,texto:t.slice(0,160),palabras:w.length,flesch:flesch(w,t),
+        imperativa:w.slice(0,5).join(" ").replace(/^\w/,function(c){return c.toUpperCase();}),
+        larga:w.length>12?"recorta a ≤12 palabras (leves +8 palabras = -2 clics de atención)":"ok"});
+    }
+  }
+  if(ruta&&!textos.length) return {ok:false,motivo:"en «"+ruta+"» no encontré textos de interfaz (patrón >texto<)."};
+  var peor=textos.length?Math.min.apply(null,textos.map(function(t){return t.flesch;})):null;
+  out(textos.length+" textos · legibilidad mínima "+(peor===null?"—":peor));
+  return {textos:textos,total:textos.length,lectura_media:(function(){if(!textos.length)return null;var s=0;textos.forEach(function(t){s+=t.flesch;});return Math.round(s/textos.length);})()};
+};
+document.getElementById("go").onclick=function(){H["microcopy.ana"]({}).then(out);};
+</script>
+</body></html>

@@ -1,0 +1,16 @@
+# MANIFIESTO SHA-256 — espejos de servidor de datos (espejos-servidor v1)
+# generado 2026-09-21T14:21:44.570Z
+#
+# Para verificar integridad:   sha256sum -c MANIFIESTO_SHA256.txt   (desde espejos_servidor/)
+
+eca4389ec80efb29e0651d5da56a3587eb6587be83d227a291931dc2b7b90ead  catalogo.json
+b99288b5f5c4c61def7906c1e8c1075199e1fda58e636023ac0c2a31e7c93846  respaldos/relacional/servidor.relacional.json
+bf92b321a7ef98ff3c607c6c4df897ab2e99a340e4d092e2ea2778ff65f3d23b  respaldos/documental/servidor.documental.json
+9c8ff1d6747eb23bfb7ae122352c5cb271154ab5298ec46c6ab450c74d0f5c21  respaldos/clave_valor/servidor.clave_valor.json
+744d03082f8569ff9578c3b780fa8ffa7fa9c751e689a920e7853b3c5f448621  respaldos/grafo/servidor.grafo.json
+61526aa3107a5aa9971285633f7d9fb0282ab6306237382796a46ad5d3d07057  respaldos/vectorial/servidor.vectorial.json
+bcb90533043e78ed54260f2e1fcd7a8bd4d325ac1ccad8ea309d9d5320494fec  respaldos/serie_temporal/servidor.serie_temporal.json
+3c21ba5600f7e2affdde86da4d1af6d5ad0db4581226a6de8dda37bb7b7fd431  respaldos/colas/servidor.colas.json
+31d82b7d4fd1438bb409bd431db4612bc74939811c70360ac120cff8b9c52a3a  respaldos/objetos/servidor.objetos.json
+4961f67ce4583df078b1b39a4d2904fcc1a99b6c5880faa650463e42e712edab  respaldos/busqueda/servidor.busqueda.json
+2feefa71361eb84b3273473548b08382796f095492aaa9dce9e65f98949364ef  respaldos/realtime/servidor.realtime.json

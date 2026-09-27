@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Escriba</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#fbbf24}small{color:#64748b}button{background:#16233a;color:#fcd34d;border:1px solid #6d5a2f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Escriba <small>cn.escriba · el README que refleja el estado real</small></h4>
+<button id="go">Generar README.md</button>
+<pre id="out">No inventa: lee archivos, package.json y primeras líneas de contexto.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(m.args||{});}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+var MARCA="<!-- generado por cn.escriba — editar aquí se pisa; edita el código y re-genera -->";
+function contexto(contenido){
+  var lineas=String(contenido||"").split("\n");
+  for(var i=0;i<Math.min(lineas.length,12);i++){
+    var l=lineas[i].trim();
+    var m=l.match(/^(?:\/\/|#|\/\*+|<!--)\s*[!>]*\s*(.{12,160}?)\s*(?:\*+\/|-->)?$/);
+    if(m&&!/^(\/\/#!|node|usr\/bin| coding|encoding)/i.test(m[1])) return m[1].replace(/[-–—]+$/,"").trim();
+  }
+  return "—";
+}
+H["escriba.documentar"]=async function(a){
+  var files=((await call("workspace.getFiles"))||[]).slice();
+  if(!files.length) return {ok:false,motivo:"workspace vacío: nada que documentar (andamía primero: /embudo)."};
+  var viejo=files.find(function(f){return f.path==="README.md";});
+  if(viejo&&String(viejo.content).indexOf("cn.escriba")<0&&!a.forzar)
+    return {ok:false,motivo:"README.md existe y es tuyo (sin marca escriba): no lo piso. Reenvía con forzar:true si de verdad quieres re-generarlo."};
+  files.sort(function(x,y){return x.path<y.path?-1:1;});
+  var pkg=null; try{pkg=JSON.parse((files.find(function(f){return f.path==="package.json";})||{}).content||"null");}catch(e){pkg=null;}
+  var nombre=pkg&&pkg.name?pkg.name:files[0].path.split("/")[0];
+  var l=["# "+nombre,"",MARCA,"","## Qué hay aquí","```"];
+  files.slice(0,80).forEach(function(f){l.push(f.path+"  ("+String(f.content||"").split("\n").length+" líneas)");});
+  if(files.length>80) l.push("… y "+(files.length-80)+" archivos más");
+  l.push("```","","## Cómo arrancar");
+  if(pkg&&pkg.scripts) Object.keys(pkg.scripts).forEach(function(s){l.push("- `"+(s==="start"?"npm start":"npm run "+s)+"` → "+pkg.scripts[s]);});
+  else l.push("- sin package.json: abre index.html o ejecuta los .mjs que toquen.");
+  l.push("","## Archivo por archivo","",'| archivo | de qué va |',"|---|---|");
+  files.slice(0,40).forEach(function(f){l.push("| `"+f.path+"` | "+contexto(f.content).replace(/\|/g,"\\|")+" |");});
+  l.push("","---","", "Generado por cn.escriba desde el estado REAL del workspace ("+files.length+" archivos). ¿Cambió algo? /documentar de nuevo: la documentación nunca miente dos veces.");
+  await call("workspace.writeFile",{path:"README.md",content:l.join("\n")+"\n"});
+  out("README.md regenerado · "+files.length+" archivos · "+(pkg&&pkg.scripts?Object.keys(pkg.scripts).length+" scripts":"sin scripts"));
+  return {archivo:"README.md",archivos:files.length,scripts:pkg&&pkg.scripts?Object.keys(pkg.scripts):[]};
+};
+document.getElementById("go").onclick=function(){H["escriba.documentar"]({}).then(out);};
+</script>
+</body></html>

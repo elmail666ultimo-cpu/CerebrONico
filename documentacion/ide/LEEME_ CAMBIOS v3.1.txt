@@ -1,0 +1,108 @@
+============================================================
+ CerebroNico IDE v3.1 — "Autoarranque Total"
+ LEEME PRIMERO: qué cambió y cómo usarlo
+============================================================
+
+QUÉ SE CORRIGIÓ EN ESTA VERSIÓN
+===============================
+
+1) ADIÓS PANTALLA NEGRA EN EL EXE — ARRANQUE 100% AUTOMÁTICO
+   Antes tenías que abrir iniciar_todo_windows.bat y DESPUÉS el EXE.
+   Ahora el EXE lo hace solo:
+     - Si el server (:3000) ya está corriendo, entra directo.
+     - Si no, ejecuta iniciar_todo_windows.bat de forma OCULTA por ti.
+     - Muestra una pantalla de carga con progreso real (nunca negra).
+     - Espera hasta 6 minutos (cubre npm install en PCs lentas) y
+       abre la interfaz apenas el server responde.
+     - Al cerrar el EXE, cierra solo el server que él arrancó
+       (Ollama no se toca).
+   Además iniciar_todo_windows.bat ahora:
+     - Instala dependencias SOLO (npm install) si falta node_modules.
+     - Arranca Ollama con ventana minimizada.
+
+2) ÁRBOL DE ARCHIVOS VERTICAL (como pediste, estilo AI Studio)
+   El editor ya no usa pestañas horizontales: tiene un EXPLORADOR
+   vertical con carpetas anidadas (src > components > ...),
+   buscador, iconos por tipo de archivo, punto naranja de
+   "modificado", cerrar archivo con la X al pasar el mouse y botón
+   "Nuevo archivo".
+
+3) ZIP EXPORTABLE EN PUERTO 3500 (sin colisiones)
+   Todo proyecto exportado con el botón ZIP (o sincronizado al
+   sandbox) queda configurado para correr en el puerto 3500:
+     - package.json: "dev": "cross-env PORT=3500 tsx server.ts"
+     - vite.config.ts: port 3500
+     - server.ts de la plantilla: process.env.PORT || 3500
+     - MEMORIA.md documenta la regla de puertos.
+   La IDE vive en :3000 y tus apps en :3500: jamás chocan.
+
+4) SANDBOX REAL (antes era un muerto decorativo)
+   El tab "Sandbox" ahora SÍ funciona:
+     - Botón "Instalar dependencias": npm install real en el
+       proyecto del sandbox (.proyectos).
+     - Botón "Arrancar app (:3500)": sincroniza el workspace del
+       editor a disco y levanta npm run dev en el puerto 3500.
+     - Preview EN VIVO dentro de la IDE (iframe) + botones
+       Recargar / Abrir en navegador / Detener.
+     - La app del sandbox que tenías (vitacora-vision) quedó
+       parcheada para respetar el puerto del entorno
+       (process.env.PORT || 3000), así deja de pisar la IDE.
+
+5) node_modules y dist_electron
+   - node_modules NO viene en el paquete (563 MB, se regenera solo):
+     la primera vez que ejecutes iniciar_todo_windows.bat o el EXE,
+     instala las dependencias automáticamente.
+   - dist_electron (el EXE) se genera con el nuevo
+     compilar_exe_windows.bat (ver abajo).
+
+CÓMO USARLO EN WINDOWS (3 caminos)
+==================================
+
+CAMINO A — Un solo doble clic (recomendado):
+   1. Descomprime el paquete donde quieras.
+   2. Doble clic a iniciar_todo_windows.bat
+      (la primera vez instala dependencias: espera sin cerrar).
+   3. Listo. Abre http://127.0.0.1:3000 si no se abre solo.
+
+CAMINO B — Solo el EXE (autoarranque total):
+   1. Genera el EXE con compilar_exe_windows.bat (una sola vez).
+   2. Usa el EXE portable: dist_electron\win-unpacked\CerebroNico IDE.exe
+      Déjalo dentro de la carpeta del proyecto (o en una subcarpeta):
+      el EXE busca iniciar_todo_windows.bat hacia arriba y lo ejecuta
+      oculto, espera al server y abre la IDE solo.
+   3. También puedes instalar el Setup .exe: abrirá la IDE; si el
+      server no está corriendo y no encuentra el BAT, arranca el
+      server compilado incluido (sin Ollama ni puente Python; para
+      TODO usa el Camino A o el portable del paso 2).
+
+CAMINO C — Los dos a la vez:
+   Da igual el orden ahora: si el BAT ya corre, el EXE detecta el
+   server al instante; si no, el EXE lanza el BAT solo.
+
+COMPILAR EL EXE INSTALABLE (después de este paquete)
+====================================================
+   1. Doble clic a compilar_exe_windows.bat
+   2. Espera: compila la interfaz + server y luego empaqueta con
+      electron-builder (varios minutos).
+   3. Resultado en dist_electron/:
+        - CerebroNico IDE Setup (versión).exe  -> instalador NSIS
+        - win-unpacked/CerebroNico IDE.exe     -> portable
+
+PUERTOS (regla de oro)
+======================
+   :3000  -> Interfaz de CerebroNico IDE (no tocar)
+   :3500  -> Tus apps exportadas y el sandbox (oficial de apps)
+   :5000  -> Puente Python (agente PC)
+   :11434 -> Ollama
+
+NOTAS TÉCNICAS
+==============
+   - Nuevos endpoints del server para el sandbox:
+       POST /api/sandbox/start | POST /api/sandbox/stop
+       GET  /api/sandbox/status | GET /api/sandbox/logs
+   - El log del sandbox queda en .proyectos/.sandbox_3500.log
+   - El EXE ya no usa el fork a un puerto equivocado (5001) que
+     causaba parte de la pantalla negra: ahora todo entra por :3000.
+   - electron-main.cjs usa instancia única: abrir el EXE dos veces
+     solo enfoca la ventana existente (cero conflictos de puertos).
+============================================================

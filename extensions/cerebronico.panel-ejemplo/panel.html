@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Panel de ejemplo</title>
+<style>
+  :root { color-scheme: dark; }
+  /* v2.1 — ESCALA LEGIBLE.
+     Antes: 13px de base y 11px en botones y listados, así que el panel se veía
+     diminuto al lado del resto de la interfaz (que arranca en 15px y llega a
+     25px). El CSS de la IDE no entra en un iframe, por eso hay que subirlo aquí. */
+  body { margin:0; font:15px/1.6 -apple-system,Segoe UI,Roboto,sans-serif; background:#070b14; color:#e5e7eb; }
+  header { padding:14px 16px; border-bottom:1px solid #162034; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; font-weight:600; }
+  .tag { font-size:13px; padding:2px 9px; border-radius:11px; background:#22d3ee22; color:#67e8f9; border:1px solid #22d3ee55; }
+  main { padding:16px; display:grid; gap:12px; }
+  button { background:#0d121c; color:#cbd5e1; border:1px solid #162034; border-radius:8px; padding:12px 14px; cursor:pointer; font-size:15px; text-align:left; }
+  button:hover { border-color:#22d3ee88; color:#67e8f9; }
+  pre { background:#050810; border:1px solid #162034; border-radius:8px; padding:12px; overflow:auto; max-height:45vh; font-size:13px; color:#94a3b8; }
+  .muted { color:#64748b; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Panel de ejemplo</h1>
+  <span class="tag">extensión</span>
+  <span class="muted" style="margin-left:auto" id="estado">conectando…</span>
+</header>
+<main>
+  <div class="muted">
+    Esta pestaña la aporta una EXTENSIÓN: el IDE la ejecuta aislada en un iframe y se
+    comunica por el puente de permisos. No puede leer archivos si no declara
+    <code>workspace.read</code>.
+  </div>
+  <button data-cmd="ejemplo.contarPalabras">Contar palabras del workspace</button>
+  <button data-cmd="ejemplo.informe">Generar informe del proyecto</button>
+  <button data-cmd="__chat">Pedir al modelo que use mis herramientas</button>
+  <pre id="salida">Esperando órdenes…</pre>
+</main>
+<script>
+(function () {
+  var estado = document.getElementById("estado");
+  var salida = document.getElementById("salida");
+  var pending = {};
+  function log(t) { salida.textContent = t; }
+
+  // 1) Pedimos datos al IDE. El IDE comprueba PERMISOS de su lado.
+  function request(method, params) {
+    return new Promise(function (resolve) {
+      var id = method + "#" + Math.random().toString(36).slice(2);
+      pending[id] = resolve;
+      parent.postMessage({ cn: 1, type: "request", id: id, method: method, params: params || {} }, "*");
+    });
+  }
+
+  async function runCommand(commandId, args) {
+    if (commandId === "__chat") {
+      await request("chat.sendMessage", { text: "Usa la herramienta ext_informe_proyecto para resumir mi proyecto." });
+      log("Orden enviada al modelo por el puente (chat.sendMessage).");
+      return { ok: true, result: "enviado al chat" };
+    }
+    var files = (await request("workspace.getFiles", {})) || [];
+    if (!Array.isArray(files)) files = [];
+    if (commandId === "ejemplo.contarPalabras") {
+      var palabras = 0;
+      files.forEach(function (f) { palabras += String(f.content || "").split(/\s+/).filter(Boolean).length; });
+      log("Archivos: " + files.length + "\nPalabras totales: " + palabras);
+      return { ok: true, result: { archivos: files.length, palabras: palabras } };
+    }
+    if (commandId === "ejemplo.informe") {
+      var limite = (args && args.limite) || 20;
+      var lineas = files.slice(0, limite).map(function (f) {
+        return f.path + " — " + String(f.content || "").split("\n").length + " líneas";
+      });
+      log(lineas.join("\n") || "Workspace vacío.");
+      return { ok: true, result: lineas };
+    }
+    return { ok: false, error: "comando no reconocido: " + commandId };
+  }
+
+  document.querySelectorAll("button[data-cmd]").forEach(function (b) {
+    b.addEventListener("click", function () { runCommand(b.getAttribute("data-cmd")); });
+  });
+
+  // 2) Escuchamos al IDE: init, comandos y resultados.
+  window.addEventListener("message", function (ev) {
+    var m = ev.data;
+    if (!m || m.cn !== 1) return;
+    if (m.type === "init") {
+      estado.textContent = "conectado · permisos: " + (m.permissions || []).join(", ");
+      log("Extensión lista.\nManifiesto: " + m.manifest.name + " v" + m.manifest.version);
+      return;
+    }
+    if (m.type === "command") {
+      runCommand(m.commandId, m.args).then(function (res) {
+        parent.postMessage({ cn: 1, type: "commandResult", commandId: m.commandId, requestId: m.requestId, ok: res.ok, result: res.result, error: res.error }, "*");
+      });
+      return;
+    }
+    if (m.type === "response" && pending[m.id]) {
+      pending[m.id](m.ok ? m.result : null);
+      delete pending[m.id];
+      return;
+    }
+  });
+
+  // 3) Avisamos al IDE de que estamos listos.
+  parent.postMessage({ cn: 1, type: "ready" }, "*");
+})();
+</script>
+</body>
+</html>

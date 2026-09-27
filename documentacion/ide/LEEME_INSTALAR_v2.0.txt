@@ -1,0 +1,72 @@
+============================================================
+ CerebroNico IDE v2.0 — CÓMO INSTALAR Y ARRANCAR (Windows)
+============================================================
+
+⚠️  ERROR FRECUENTE: "npm error Could not read package.json"
+    Eso pasa si ejecutas `npm install` en la carpeta `ide\`.
+    El package.json NO está en `ide\`, está en `ide\backend\`.
+
+------------------------------------------------------------
+ OPCIÓN 1 (RECOMENDADA) — Doble clic al lanzador
+------------------------------------------------------------
+   1. Entra en la carpeta:   CerebroNico-IDE-v2.0\ide\
+   2. Doble clic en:         arrancar_cerebronico.bat
+
+   Ese lanzador hace todo solo:
+     · comprueba que Node.js esté instalado
+     · limpia los puertos 3000, 5000 y 3500 si quedaron colgados
+     · instala las dependencias si faltan (npm install)
+     · arranca Ollama si no está corriendo
+     · arranca el motor en el puerto 3000 y abre el navegador
+
+------------------------------------------------------------
+ OPCIÓN 2 — A mano (DOS pasos, no uno)
+------------------------------------------------------------
+   1)  cd C:\...\CerebroNico-IDE-v2.0\ide\backend
+   2)  npm install
+   3)  npm run dev
+
+   Si omites el `cd backend`, npm sube buscando un package.json y
+   termina en C:\Users\BirdBox\ → de ahí el error ENOENT.
+
+------------------------------------------------------------
+ REQUISITOS
+------------------------------------------------------------
+   · Node.js 18 o superior (probado en Node 26)
+   · Ollama instalado y con al menos un modelo (ollama list)
+     Recomendados para 8 GB:  qwen2.5-coder:1.5b  ·  qwen3:0.6b
+                              smollm2:1.5b        ·  qwen2.5:0.5b
+   · Windows 10/11
+
+------------------------------------------------------------
+ AVISO SOBRE LOS SCRIPTS DE npm BLOQUEADOS
+------------------------------------------------------------
+   npm puede bloquear el postinstall de esbuild y avisar así:
+     "npm warn install-scripts   esbuild@... (postinstall: node install.js)"
+   Si al arrancar ves un error de binario de esbuild ("binary not found"
+   o "installed for another platform"), desbloquéalo con:
+       npm install-scripts ls
+       npm install-scripts approve esbuild
+
+------------------------------------------------------------
+ QUÉ DEBERÍAS VER AL ARRANCAR
+------------------------------------------------------------
+   1. Una pantalla de carga con el cerebro y chispas:
+      "CerebroNico arrancando motor", comprobando Ollama, sandbox,
+      puente de PC y base de conocimiento.
+   2. Arriba a la derecha:   Pro  ·  Z.ai  ·  Config  ·  ZIP
+   3. En medio: las pestañas  [ Chat ]  [ Superación ]  y, si la abres,
+      [ Editor web ] con el previsualizador del sandbox :3500.
+   4. Ctrl + rueda del ratón  →  agranda o reduce toda la interfaz.
+      Ctrl + 0                →  vuelve al 100 %.
+      Click derecho           →  copiar, cortar, pegar, capturar pantalla.
+
+------------------------------------------------------------
+ SI ALGO NO ARRANCA
+------------------------------------------------------------
+   · Puerto ocupado por una versión anterior: cierra las ventanas
+     negras que queden abiertas y vuelve a lanzar el .bat.
+   · El previsualizador sale vacío: el sandbox (:3500) tarda en
+     levantar; espera y pulsa "Refrescar preview".
+   · Gemini da error de cuota: su plan gratuito tiene tope DIARIO.
+     Para uso intensivo usa GLM-4.7-Flash (Z.ai) o un modelo local.

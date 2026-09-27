@@ -1,0 +1,34 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.serie_temporal",
+  "categoria": {
+    "id": "serie_temporal",
+    "nombre": "Series temporales",
+    "icono": "📈",
+    "descripcion": "Bases de series de tiempo: TimescaleDB, InfluxDB. Métricas, retención, IoT, telemetría."
+  },
+  "espejo": {
+    "id": "servidor.serie_temporal",
+    "categoria": "serie_temporal",
+    "nombre": "Espejo · Servidor de Series Temporales",
+    "senales": [
+      "serie temporal",
+      "series temporales",
+      "timescale",
+      "influxdb",
+      "metricas",
+      "telemetria",
+      "iot",
+      "muestras",
+      "retencion",
+      "timestamp",
+      "serie_temporal"
+    ],
+    "descripcion": "Estima el almacenamiento de una serie de tiempo y recomienda el intervalo de chunk y la retención.",
+    "contrato": {
+      "entrada": "puntosPorSegundo · retencionDias · bytesPorPunto?",
+      "salida": "puntosTotales, bytesEstimados, intervaloChunk, retencion, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "c6c23ffa34ad8e516033377a7946287d7728f1ba55dbff99d57a96772da15473"
+}

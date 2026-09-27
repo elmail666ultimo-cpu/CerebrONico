@@ -1,0 +1,1083 @@
+{
+  "que_es": "Contrato de superficie HTTP del servidor (Fase 2). GENERADO por scripts/superficie.mjs: no editar a mano.",
+  "generado": "2026-09-25",
+  "server_lineas": 11425,
+  "presupuesto_lineas": 11425,
+  "total": 134,
+  "rutas_en_monolito": 121,
+  "rutas_extraidas": 13,
+  "rutas": [
+    {
+      "metodo": "GET",
+      "ruta": "/api/quirofano/estado",
+      "linea": 2404,
+      "dominio": "quirofano",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/artefacto/explicar",
+      "linea": 2452,
+      "dominio": "artefacto",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/quirofano/revisar",
+      "linea": 2467,
+      "dominio": "quirofano",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/quirofano/deshacer",
+      "linea": 2476,
+      "dominio": "quirofano",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/tts/voices",
+      "linea": 3220,
+      "dominio": "tts",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/tts/gemini",
+      "linea": 3224,
+      "dominio": "tts",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/gemini/models",
+      "linea": 3291,
+      "dominio": "gemini",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/openrouter/models",
+      "linea": 3335,
+      "dominio": "openrouter",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/openai/models",
+      "linea": 3385,
+      "dominio": "openai",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/zai/models",
+      "linea": 3452,
+      "dominio": "zai",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/cloud/models",
+      "linea": 3494,
+      "dominio": "cloud",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/custom/models",
+      "linea": 3564,
+      "dominio": "custom",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/verifier/status",
+      "linea": 3800,
+      "dominio": "verifier",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/verifier/config",
+      "linea": 3809,
+      "dominio": "verifier",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/verifier/check",
+      "linea": 3830,
+      "dominio": "verifier",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/governor",
+      "linea": 3849,
+      "dominio": "governor",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/features",
+      "linea": 3858,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/features/toggle",
+      "linea": 3863,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/features/templates",
+      "linea": 3878,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/features/git/log",
+      "linea": 3883,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/features/git/commit",
+      "linea": 3888,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/features/git/rollback",
+      "linea": 3897,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/features/deep-index",
+      "linea": 3908,
+      "dominio": "features",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/rag/status",
+      "linea": 3931,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/rag/toggle",
+      "linea": 3936,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/rag/model",
+      "linea": 3947,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/rag/index",
+      "linea": 3955,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/rag/search",
+      "linea": 3979,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/rag/clear",
+      "linea": 3987,
+      "dominio": "rag",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain",
+      "linea": 3993,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/state",
+      "linea": 4008,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/decision",
+      "linea": 4015,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/lesson",
+      "linea": 4034,
+      "dominio": "brain",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/scan",
+      "linea": 4046,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain/history",
+      "linea": 4059,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/rollback",
+      "linea": 4064,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/compact",
+      "linea": 4072,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain/prompt",
+      "linea": 4077,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/kb",
+      "linea": 4083,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain/runner",
+      "linea": 4302,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/scale",
+      "linea": 4329,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/tramo",
+      "linea": 4342,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain/plans",
+      "linea": 4357,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/plan",
+      "linea": 4380,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/brain/plan/:id",
+      "linea": 4436,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/plan/:id/cancel",
+      "linea": 4444,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/brain/plan/:id/resume",
+      "linea": 4451,
+      "dominio": "brain",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/convertir",
+      "linea": 4462,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/imagen",
+      "linea": 4483,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/imagen/vista",
+      "linea": 4605,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/imagen/estado",
+      "linea": 4627,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/reflejo",
+      "linea": 4637,
+      "dominio": "reflejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/reflejo/estado",
+      "linea": 4645,
+      "dominio": "reflejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/consejo/estado",
+      "linea": 4665,
+      "dominio": "consejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/consejo/entidad",
+      "linea": 4677,
+      "dominio": "consejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/consejo/turbo",
+      "linea": 4706,
+      "dominio": "consejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/consejo/espejos",
+      "linea": 4711,
+      "dominio": "consejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/espejos/leyes",
+      "linea": 4747,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/espejos/salud",
+      "linea": 4757,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/salud/dormir",
+      "linea": 4766,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/salud/reset",
+      "linea": 4781,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/equipo",
+      "linea": 4796,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/boveda/estado",
+      "linea": 4816,
+      "dominio": "boveda",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/boveda/configurar",
+      "linea": 4829,
+      "dominio": "boveda",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/boveda/preparar",
+      "linea": 4842,
+      "dominio": "boveda",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/boveda/indice",
+      "linea": 4872,
+      "dominio": "boveda",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/entrada/auditar",
+      "linea": 4887,
+      "dominio": "entrada",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/orquestar",
+      "linea": 4894,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/orquestar/:familia",
+      "linea": 4968,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/consejo/espejos",
+      "linea": 5022,
+      "dominio": "consejo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/espejos/personalizados",
+      "linea": 5073,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/instalar",
+      "linea": 5088,
+      "dominio": "espejos",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/desinstalar",
+      "linea": 5195,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/leyes/aprender",
+      "linea": 5212,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos/leyes/desactivar",
+      "linea": 5277,
+      "dominio": "espejos",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/conductor",
+      "linea": 5308,
+      "dominio": "conductor",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/export/targets",
+      "linea": 5413,
+      "dominio": "export",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/export/android/prepare",
+      "linea": 5454,
+      "dominio": "export",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/convertir-verificar",
+      "linea": 5541,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/kb/stats",
+      "linea": 5571,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/kb/learn",
+      "linea": 5582,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/kb/entry",
+      "linea": 5592,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/guard",
+      "linea": 5610,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/engine/sync",
+      "linea": 5622,
+      "dominio": "engine",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/symbols",
+      "linea": 5638,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/engine/tools",
+      "linea": 5659,
+      "dominio": "engine",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/ollama/warmup",
+      "linea": 5669,
+      "dominio": "ollama",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/sandbox/flatten-root",
+      "linea": 5761,
+      "dominio": "sandbox",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/sandbox/verify-preview",
+      "linea": 6024,
+      "dominio": "sandbox",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/extensions/forjar",
+      "linea": 6134,
+      "dominio": "extensions",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/fondo/meta",
+      "linea": 6166,
+      "dominio": "fondo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/fondo",
+      "linea": 6171,
+      "dominio": "fondo",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/fondo",
+      "linea": 6198,
+      "dominio": "fondo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/api/fondo",
+      "linea": 6208,
+      "dominio": "fondo",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/puente/medir",
+      "linea": 6241,
+      "dominio": "puente",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/contenedor/inspeccionar",
+      "linea": 6371,
+      "dominio": "contenedor",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/proyecto/espejo",
+      "linea": 6442,
+      "dominio": "proyecto",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/coreo",
+      "linea": 6487,
+      "dominio": "coreo",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/extensions",
+      "linea": 6489,
+      "dominio": "extensions",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/extensions/:id/enable",
+      "linea": 6502,
+      "dominio": "extensions",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/extensions/:id/disable",
+      "linea": 6515,
+      "dominio": "extensions",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/api/extensions/:id",
+      "linea": 6524,
+      "dominio": "extensions",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/extensions/install",
+      "linea": 6552,
+      "dominio": "extensions",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/extensions/invocations",
+      "linea": 6628,
+      "dominio": "extensions",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/extensions/invocations/:id/result",
+      "linea": 6644,
+      "dominio": "extensions",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/extensions/*",
+      "linea": 6663,
+      "dominio": "raiz",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/subagents",
+      "linea": 6765,
+      "dominio": "subagents",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/sandbox/start",
+      "linea": 6933,
+      "dominio": "sandbox",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/sandbox/stop",
+      "linea": 8178,
+      "dominio": "sandbox",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/sandbox/status",
+      "linea": 8209,
+      "dominio": "sandbox",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/sandbox/logs",
+      "linea": 8462,
+      "dominio": "sandbox",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/exec",
+      "linea": 8534,
+      "dominio": "exec",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/fs/write",
+      "linea": 8610,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/fs/clear-all",
+      "linea": 8694,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/fs/nuclear-wipe",
+      "linea": 8776,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/fs/sync",
+      "linea": 8952,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/fs/read",
+      "linea": 9209,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/fs/tree",
+      "linea": 9222,
+      "dominio": "fs",
+      "guarda": true,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/ai/stream",
+      "linea": 9494,
+      "dominio": "ai",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/bridge/restart",
+      "linea": 11205,
+      "dominio": "bridge",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "*",
+      "linea": 11323,
+      "dominio": "raiz",
+      "guarda": false,
+      "archivo": "server.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/capacidades",
+      "linea": 43,
+      "dominio": "capacidades",
+      "guarda": false,
+      "archivo": "server/routers/capacidades.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/health/deep",
+      "linea": 63,
+      "dominio": "health",
+      "guarda": false,
+      "archivo": "server/routers/diagnostico.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/ollama/perf",
+      "linea": 171,
+      "dominio": "ollama",
+      "guarda": false,
+      "archivo": "server/routers/diagnostico.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/ollama/models",
+      "linea": 193,
+      "dominio": "ollama",
+      "guarda": false,
+      "archivo": "server/routers/diagnostico.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/espejos-servidor",
+      "linea": 30,
+      "dominio": "espejos-servidor",
+      "guarda": false,
+      "archivo": "server/routers/espejosServidor.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/espejos-servidor/categoria/:id",
+      "linea": 35,
+      "dominio": "espejos-servidor",
+      "guarda": false,
+      "archivo": "server/routers/espejosServidor.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos-servidor/seleccionar",
+      "linea": 45,
+      "dominio": "espejos-servidor",
+      "guarda": false,
+      "archivo": "server/routers/espejosServidor.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/espejos-servidor/ejecutar",
+      "linea": 50,
+      "dominio": "espejos-servidor",
+      "guarda": false,
+      "archivo": "server/routers/espejosServidor.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/puente/requisitos",
+      "linea": 26,
+      "dominio": "puente",
+      "guarda": false,
+      "archivo": "server/routers/puenteDependencias.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/puente/plan",
+      "linea": 32,
+      "dominio": "puente",
+      "guarda": false,
+      "archivo": "server/routers/puenteDependencias.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/telemetry/ports",
+      "linea": 59,
+      "dominio": "telemetry",
+      "guarda": false,
+      "archivo": "server/routers/telemetria.ts"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/telemetry/refresh",
+      "linea": 110,
+      "dominio": "telemetry",
+      "guarda": false,
+      "archivo": "server/routers/telemetria.ts"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/system/stats",
+      "linea": 120,
+      "dominio": "system",
+      "guarda": false,
+      "archivo": "server/routers/telemetria.ts"
+    }
+  ]
+}

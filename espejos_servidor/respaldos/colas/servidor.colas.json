@@ -1,0 +1,38 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.colas",
+  "categoria": {
+    "id": "colas",
+    "nombre": "Colas y tareas",
+    "icono": "📨",
+    "descripcion": "Colas y brokers: RabbitMQ, Kafka, Celery. Productores, consumidores, workers, ack."
+  },
+  "espejo": {
+    "id": "servidor.colas",
+    "categoria": "colas",
+    "nombre": "Espejo · Servidor de Colas",
+    "senales": [
+      "cola",
+      "colas",
+      "rabbitmq",
+      "kafka",
+      "celery",
+      "productor",
+      "consumidor",
+      "mensajes",
+      "encolar",
+      "tarea",
+      "tareas",
+      "worker",
+      "workers",
+      "broker",
+      "ack"
+    ],
+    "descripcion": "Recomienda la topología de colas (número, prefetch y confirmación) a partir de productores y consumidores.",
+    "contrato": {
+      "entrada": "productores: int · consumidores: int · ackManual?",
+      "salida": "colas, prefetchPorConsumidor, confirmacion, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "86088a8c446a5aa8bb43d14a6cd6b1f2097fbc670b7c6aeae8775e752065fc58"
+}

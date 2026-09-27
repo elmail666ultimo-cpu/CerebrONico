@@ -1,0 +1,11 @@
+{
+  "name": "CerebroNico IDE — Mario Nicolas Quintero",
+  "description": "IDE De alto rendimiento para generar aplicaciones y software en local/nube, ollama,gemini,openrouter y todo servidor gratuito, pantalla principal limpia solo chat al centro con entrada de archivos /adjuntar/,todos los formatos y tamaño hasta 50 elementos pantalla estable con scroll y movimiento siguiendo el mensaje desplasandoce a la par de la escritura, izquierda columna desplegable con menus , derecha desplegable con area de trabajos secundarios , ej: preview en sandbox, archivos entregables a descargar o pensamiento de sintaxis del automata, ambas columnas con boton de desplegar y esconderce , eliminar todo lo que no esta en funcion de la pantalla principal que todo este en segundo plano para optimisar recursos, diceñar con regulador de max ram. Autor y propietario: Mario Nicolas Quintero.",
+  "author": "Mario Nicolas Quintero",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

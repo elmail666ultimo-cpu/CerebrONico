@@ -1,0 +1,49 @@
+id,fase,paquete,tipo,hallazgo,entregable,ficheros_objetivo,criterio_de_aceptacion,esfuerzo_estimado,riesgo,depende_de
+P0-01,F0,Descubrimiento dinamico de suites,verificacion,H9,"validar.mjs recorre tests/*.test.ts y avisa si una suite no corrio","scripts/validar.mjs","Una suite nueva sin registrar aparece ejecutada","0.5 dia",bajo,-
+P0-02,F0,Parser estricto,verificacion,H9,"Recuento y marcas se combinan por el caso peor","scripts/validar.mjs","Suite con recuento + linea X cuenta como roja","0.5 dia",bajo,P0-01
+P0-03,F0,Manifiesto completo,entrega,H11,"El manifiesto cubre todo lo entregado","MANIFIESTO_SHA256_v<v>.txt + script de cobertura","0 ficheros entregados fuera del manifiesto","0.5 dia",bajo,-
+P0-04,F0,Decision sobre kb.json,entrega,H11,"Cubrir o excluir el estado que las pruebas de humo modifican","manifiesto + postinstall","Decision escrita y verificable","0.25 dia",bajo,P0-03
+P0-05,F0,ROADMAP regenerado desde codigo,documentacion,-,"D7 D8 D-P1 y catalogo ya no estan pendientes","ROADMAP.md generado","0 pendientes falsos (grep)","0.5 dia",bajo,-
+P0-06,F0,Reconciliacion del canon,documentacion,H10,"espejos.ts 668 vs 852 y fondo.ts 102 vs 187","mejoras/<pkg>/ o declaracion de historico","0 diferencias o historico declarado","0.5 dia",medio,P0-05
+P0-07,F0,Puerta de fase F0,verificacion,-,"tsc + validar + manifiesto","-","0 errores y >=3372 y 0 sin correr","0.25 dia",bajo,P0-01..P0-06
+P1-01,F1,Puente sin shell,seguridad,H1,"Se retira shell=True","ide/backend/agent_bridge_5000.py","grep shell=True = 0 coincidencias","0.5 dia",medio,-
+P1-02,F1,Lista blanca de binarios,seguridad,H1,"Binarios permitidos declarados y versionados","agent_bridge_5000.py + config","Binario no listado rechaza con motivo","1 dia",medio,P1-01
+P1-03,F1,Contencion de rutas,seguridad,H2,"resolve_pc_path valida contra raices permitidas","agent_bridge_5000.py","Ruta fuera de raiz rechaza con motivo","1 dia",medio,-
+P1-04,F1,Token y CORS del puente,seguridad,H3,"Origen exigido y token obligatorio","agent_bridge_5000.py","Peticion sin Origin rechaza","0.5 dia",bajo,-
+P1-05,F1,Guard fail-closed en Node,seguridad,H3,"Sin token solo loopback","server.ts sandboxAuthorized","Peticion no-loopback sin token = 401","0.5 dia",medio,-
+P1-06,F1,Cerrar 9 endpoints sin guard,seguridad,H4,"Endpoints mutadores entran en el guard","server.ts rutas citadas","0 endpoints mutadores sin guard","1 dia",medio,P1-05
+P1-07,F1,Auditoria por accion,seguridad,-,"Cada ejecucion del puente queda registrada","agent_bridge_5000.py + .cerebro-db/auditoria.jsonl","Cada ejecucion deja linea con motivo","1 dia",bajo,P1-02
+P1-08,F1,Modo lectura primero,seguridad,-,"El agente PC arranca en lectura","agent_bridge_5000.py + UI","Escritura exige confirmacion explicita","0.5 dia",medio,P1-04
+P1-09,F1,Suite de seguridad del puente,verificacion,H1-H4,"Pruebas negativas como aserciones","tests/seguridadPuente.test.ts","3 pruebas negativas en suite","1 dia",bajo,P1-01..P1-08
+P1-10,F1,Puerta de fase F1,verificacion,-,"tsc + validar + npm audit","-","0 altos en audit y 0 fallos en suites","0.25 dia",bajo,P1-09
+P2-01,F2,Contrato de superficie,verificacion,H5,"Congelar las 126 rutas antes de mover","tests/superficieRutas.test.ts","126/126 con forma equivalente","1 dia",bajo,-
+P2-02,F2,Bootstrap,refactor,H5,"server.ts pasa a bootstrap","server/bootstrap.ts","<200 lineas y arranca","1 dia",medio,P2-01
+P2-03,F2,Estado con dueno,refactor,H5,"19 singletons a estado/ con reset","server/estado/*.ts","Test prohibe mutables exportados","2 dias",medio,P2-01
+P2-04,F2,Routers bajo riesgo,refactor,H5,"telemetria puente export quirofano","server/routers/*.ts","4 dominios movidos y puerta verde","3 dias",bajo,P2-03
+P2-05,F2,Routers medios,refactor,H5,"consejo boveda espejos engine extensiones coreo","server/routers/*.ts","7 dominios movidos y puerta verde","5 dias",medio,P2-04
+P2-06,F2,Routers altos,refactor,H5,"fs exec sandbox ai","server/routers/*.ts","14/14 dominios y bundle arranca","1 semana",alto,P2-05
+P2-07,F2,Puerta de fase F2,verificacion,-,"tsc + validar + contrato + bundle","-","0 ficheros >600 lineas y suites intactas","0.5 dia",bajo,P2-06
+P3-01,F3,Pipeline de chat,refactor,H5,"armarContexto elegirProveedor transmitir medir","server/chat/pipeline.ts","4 etapas llamables por separado","3 dias",medio,P2-06
+P3-02,F3,Adaptadores de proveedor,refactor,-,"Un adaptador por proveedor","server/chat/proveedores/*.ts","0 ramas de proveedor fuera de su adaptador","3 dias",medio,P3-01
+P3-03,F3,Metricas por etapa,producto,D8,"TTFT y tokens/s por etapa","pipeline + SelfImprovementPanel","Metricas por turno en la respuesta","2 dias",bajo,P3-01
+P3-04,F3,Cierre del len/4,producto,D8,"La estimacion no sustituye una medida","metricasInferencia.ts + App.tsx","Toda aparicion etiquetada como estimacion","0.5 dia",bajo,P3-03
+P3-05,F3,Puerta de fase F3,verificacion,-,"Paridad de salida con el pipeline viejo","5 prompts de referencia","Salida equivalente a temperatura 0","0.5 dia",medio,P3-04
+P4-01,F4,Registro accion a ejecutor,producto,H7,"23 acciones con ejecutor o declaracion","src/engine/ejecutoresConsejo.ts","23/23 cubiertas y motivadas","3 dias",medio,P2-06
+P4-02,F4,Ejecutores deterministas,producto,H7,"contar listar filtrar ordenar buscar sin LLM","ejecutoresConsejo.ts + planExecutors.ts","Cada accion ejecutable pasa su llamada real","3 dias",medio,P4-01
+P4-03,F4,Cierre de D9,producto,H8,"La leccion recuperada llega a memoria.md","server.ts + brain.ts","memoria.md contiene la leccion del turno","1 dia",bajo,P4-01
+P4-04,F4,Test de endpoints sin llamador,verificacion,H8,"Ningun endpoint sin llamador","tests/endpointSinLlamador.test.ts","0 endpoints huerfanos","0.5 dia",bajo,P4-03
+P4-05,F4,Catalogo honesto en el servidor,producto,H14,"El servidor compone el catalogo auditado","server.ts + contextCache","Bloque auditado sin depender del cliente","1.5 dias",bajo,P4-01
+P4-06,F4,RAG unico,producto,H12,"Elegir un localRAG y retirar el otro","src/engine o src/utils","1 solo modulo y sin nombre vectorial","1 dia",bajo,P4-01
+P4-07,F4,Puerta de fase F4,verificacion,-,"tsc + validar + suite de ejecutores","-","Votacion 40/40 intacta","0.5 dia",bajo,P4-01..P4-06
+P5-01,F5,Contextos de React,producto,H5,"5 contextos y App.tsx <=600 lineas","src/contexts/* + src/App.tsx","App.tsx <=600 y 0 componentes >900","1 semana",alto,P2-06
+P5-02,F5,Workspace a IndexedDB,producto,H6,"Cuota real y error visible","src/utils/almacen.ts","Guardado >5MB avisa y no pierde datos","3 dias",medio,P5-01
+P5-03,F5,Adjuntos honestos,producto,-,"El tope anunciado es el aplicado","attachmentProcessor.ts + ChatCenter.tsx","Tope real visible para el usuario","1 dia",bajo,P5-01
+P5-04,F5,Preferencias con un dueno,producto,-,"6 claves dispersas migradas","src/utils/preferencias.ts","Suite de migracion verde","2 dias",medio,P5-01
+P5-05,F5,Puerta de fase F5,verificacion,-,"tsc + validar + revision visual","-","Sin regresion visual y suites verdes","0.5 dia",medio,P5-01..P5-04
+P6-01,F6,Git nativo,producto,H10,"simple-git o isomorphic-git + panel","server/routers/git.ts + UI","Commit y rollback byte-identico","1 semana",medio,P2-06
+P6-02,F6,Integracion Quirofano y git,producto,H10,"La tanda juzgada tambien se commitea","quirofano.ts + git.ts","Tanda rota sin commit huerfano","2 dias",medio,P6-01
+P6-03,F6,Enrutador por complejidad,producto,A9,"Local o nube con motivo visible","chat/pipeline.ts + planner","Motivo por turno y efecto medido","3 dias",medio,P3-01
+P6-04,F6,Puerta de fase F6,verificacion,-,"tsc + validar + suite de git","-","Rollback verificado con sha256","0.5 dia",bajo,P6-01..P6-03
+P7-01,F7,Vision y OCR,producto,-,"Entrada de imagen por tramo","chat/proveedores + modelTiers","Imagen real descrita por tramo","1 mes",alto,P4-01
+P7-02,F7,Decision del mapa aspiracional,producto,-,"69 capacidades: construir aplazar o retirar","catalogoHonesto.ts","0 entradas sin decision","3 dias",bajo,P0-05
+P7-03,F7,Modo serie de imagenes,producto,-,"Evitar reintentos por 429","planExecutors.ts + imagen","Plan de N imagenes sin reintentos masivos","1 dia",bajo,P4-01

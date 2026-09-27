@@ -1,0 +1,24 @@
+{
+  "id": "cn.embudo",
+  "name": "Embudo · andamiaje de proyectos",
+  "version": "1.0.0",
+  "description": "Crea el primer esqueleto de cualquier cosa: web (html+css+js), api (node:http sin dependencias) o componente (jsx). Plantillas embebidas, cero dependencias, cero RAM: escribe los archivos y dice el siguiente paso.",
+  "author": "CerebroNico Plugins",
+  "main": "panel.html",
+  "engines": { "cerebronico": "^2.0.0" },
+  "permissions": ["workspace.write", "tools.register"],
+  "contributes": {
+    "panels": [ { "id": "embudo.panel", "title": "Embudo", "icon": "Puzzle", "entry": "panel.html", "position": "center-tab" } ],
+    "commands": [ { "id": "embudo.crear", "title": "Andamiar un proyecto nuevo", "slash": "embudo" } ],
+    "tools": [ {
+      "name": "cn_embudo_crear",
+      "description": "Crea los archivos de arranque de un proyecto nuevo (web|api|componente). Usar antes de pedir código al modelo: el andamiaje es determinista.",
+      "cheap": true,
+      "handler": "command:embudo.crear",
+      "parameters": { "type": "object", "properties": {
+        "tipo": { "type": "string", "description": "web | api | componente" },
+        "nombre": { "type": "string", "description": "nombre del proyecto o componente" }
+      }, "required": ["tipo", "nombre"] }
+    } ]
+  }
+}

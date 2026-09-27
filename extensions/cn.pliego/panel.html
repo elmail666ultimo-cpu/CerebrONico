@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Pliego</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#7dd3fc}small{color:#64748b}input{background:#141b2b;color:#e2e8f0;border:1px solid #1f3a5f;border-radius:6px;padding:4px 8px;margin:0 6px 8px 0}button{background:#16233a;color:#7dd3fc;border:1px solid #1f3a5f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}button:hover{background:#1d2f4d}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Pliego <small>cn.pliego · la idea de hoy es el checklist de mañana</small></h4>
+<input id="idea" placeholder="¿qué vas a crear?" size="34"><input id="publico" placeholder="¿para quién? (opcional)" size="20">
+<button id="go">Generar CREACION.md</button>
+<pre id="out">Una frase basta: el pliego fija lo que el chat no te va a preguntar.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(typeof m.args==="string"?{idea:m.args}:(m.args||{}));}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+H["pliego.generar"]=async function(a){
+  var idea=String((typeof a.idea==="string"&&a.idea)||(typeof a.texto==="string"?a.texto:"")||"").trim();
+  if(!idea) return {ok:false,motivo:"falta la «idea»: una frase de qué se va a crear."};
+  var publico=String(a.publico||"").trim()||"sin público declarado (decláralo: cambia el diseño)";
+  var doc=[
+"# CREACIÓN — "+idea,
+"",
+"> Generado por cn.pliego. Márcalo todo y /criticar antes de dar por hecho.",
+"",
+"## 1 · Propósito",
+"- [ ] Una frase del qué: "+idea,
+"- [ ] Para quién: "+publico,
+"- [ ] Cómo se ve que funcionó (1 cosa medible): ____",
+"",
+"## 2 · Contenido / funciones",
+"- [ ] Lista de lo que DEBE existir (no lo que gustaría):",
+"- [ ] Qué se corta por alcance: ____",
+"",
+"## 3 · Diseño",
+"- [ ] Color base elegido (#____) → /pintar lo aplica",
+"- [ ] Textos de interfaz definidos → /microcopy los mide",
+"- [ ] Estructura responsive o escritorio-only: ____",
+"",
+"## 4 · Datos",
+"- [ ] Origen real o mock → /forjar esquema,campos para maqueta",
+"- [ ] Formato de salida (json/csv/cn): ____",
+"",
+"## 5 · Aceptación (se comprueba, no se opina)",
+"- [ ] /smoke en verde · /criticar sin bloqueos · /rutas sin rotos",
+"- [ ] /aduana firma el manifiesto de entrega",
+"",
+"## 6 · Riesgos declarados",
+"- [ ] Lo que puede romperse y quién lo arregla: ____",
+"",
+"## Borrador de plan (edítalo y mándalo al chat)",
+"```cerebronico:plan",
+"{\"objetivo\":\""+idea.replace(/"/g,"'")+"\",\"tareas\":[",
+"{\"id\":\"1\",\"titulo\":\"ordenar tareas en lotes\",\"tipo\":\"reflejo\",\"peso\":\"io\",\"datos\":{\"entidad\":\"espejo.planificadores\",\"datos\":{\"tareas\":[{\"id\":\"esqueleto\"},{\"id\":\"contenido\",\"dependeDe\":[\"esqueleto\"]},{\"id\":\"estilo\",\"dependeDe\":[\"esqueleto\"]},{\"id\":\"prueba\",\"dependeDe\":[\"contenido\",\"estilo\"]}]}}},",
+"{\"id\":\"2\",\"titulo\":\"andamiar\",\"tipo\":\"modelo\",\"peso\":\"cpu\",\"datos\":{\"prompt\":\"Sigue CREACION.md y crea el esqueleto. Nada fuera del pliego.\"},\"dependeDe\":[\"1\"]}]}",
+"```"],
+  r=await call("workspace.writeFile",{path:"CREACION.md",content:doc.join("\n")+"\n"});
+  out("CREACION.md escrito — rellena los checkboxes ANTES de pedir código.");
+  return {archivo:"CREACION.md",secciones:6,siguiente:"cumplir 1·Propósito, luego pegar el borrador de plan"};
+};
+document.getElementById("go").onclick=function(){H["pliego.generar"]({idea:document.getElementById("idea").value,publico:document.getElementById("publico").value}).then(out);};
+</script>
+</body></html>

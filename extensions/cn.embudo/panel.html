@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Embudo</title>
+<style>body{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b101c;color:#cbd5e1;padding:10px;margin:0}h4{margin:0 0 4px;color:#7dd3fc}small{color:#64748b}select,input{background:#141b2b;color:#e2e8f0;border:1px solid #1f3a5f;border-radius:6px;padding:4px 8px;margin:0 6px 8px 0}button{background:#16233a;color:#7dd3fc;border:1px solid #1f3a5f;padding:4px 10px;border-radius:6px;margin:0 6px 8px 0;cursor:pointer}button:hover{background:#1d2f4d}pre{white-space:pre-wrap;word-break:break-word;background:#0a0f18;border:1px solid #1e293b;border-radius:8px;padding:8px;min-height:80px;margin:0}</style>
+</head><body>
+<h4>Embudo <small>cn.embudo · andamiaje determinista (web · api · componente)</small></h4>
+<select id="tipo"><option value="web">web</option><option value="api">api</option><option value="componente">componente</option></select>
+<input id="nombre" placeholder="nombre del proyecto" size="18">
+<button id="go">Andamiar</button>
+<pre id="out">Elige tipo y nombre, o deja que el modelo llame a cn_embudo_crear.</pre>
+<script>
+"use strict";
+var seq=0,pending={},H={};
+function call(m,p){return new Promise(function(res,rej){var id="r"+(++seq);pending[id]={res:res,rej:rej};parent.postMessage({cn:1,type:"request",id:id,method:m,params:p||{}},"*");});}
+function out(s){document.getElementById("out").textContent=(typeof s==="string"?s:JSON.stringify(s,null,1))+"\n"+document.getElementById("out").textContent;}
+window.addEventListener("message",function(ev){var m=ev.data||{};if(m.cn!==1)return;
+if(m.type==="response"){var p=pending[m.id];if(!p)return;delete pending[m.id];if(m.ok)p.res(m.result);else p.rej(m.error||"el host rechazó la petición");}
+if(m.type==="command"){var f=H[m.commandId];var done=function(r){var ok=!(r&&r.ok===false);parent.postMessage({cn:1,type:"commandResult",commandId:m.commandId,requestId:m.requestId,ok:ok,result:ok?(r&&r.result!==undefined?r.result:r):undefined,error:ok?undefined:((r&&r.error)||(r&&r.motivo)||"sin motivo declarado")},"*");};
+if(!f){done({ok:false,error:"«"+m.commandId+"» no lo declara esta extensión"});return;}
+Promise.resolve().then(function(){return f(typeof m.args==="string"?{texto:m.args}:(m.args||{}));}).then(done,function(e){done({ok:false,error:String((e&&e.message)||e)});});}});
+parent.postMessage({cn:1,type:"ready"},"*");
+</script>
+<script>
+function slug(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"proyecto";}
+function P(n){return[["index.html","<!doctype html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>"+n+"</title>\n  <link rel=\"stylesheet\" href=\"estilos.css\">\n</head>\n<body>\n  <header><h1>"+n+"</h1></header>\n  <main id=\"app\"></main>\n  <script src=\"logica.js\" defer><\/script>\n</body>\n</html>\n"],
+["estilos.css",":root{--c-base:#3a6ea5;--c-texto:#0b101c;font-family:system-ui,sans-serif}\nbody{margin:0;background:var(--c-texto);color:#f1f5f9}\nmain{max-width:960px;margin:0 auto;padding:24px}\n"],
+["logica.js","// logica.js — arranque limpio. Nada de console.log suelto: el crítico pasa.\nfunction iniciar(){\n  document.getElementById(\"app\").textContent = \"Proyecto "+n+": andamiado y listo para crecer.\";\n}\ndocument.addEventListener(\"DOMContentLoaded\", iniciar);\n"],
+["LEE-ME.txt","Proyecto "+n+" andamiado por cn.embudo.\nSiguiente paso: /pintar #tu-color (enlaza la paleta en el <head>) y /criticar antes de entregar.\n"]];}
+function A(n){return[["server.mjs","import http from \"node:http\";\nimport fs from \"node:fs\";\n\nconst datos = JSON.parse(fs.readFileSync(\"./datos-demo.json\", \"utf8\"));\nconst server = http.createServer((req, res) => {\n  if (req.url === \"/api/salud\") { res.writeHead(200, {\"Content-Type\":\"application/json\"}); return res.end(JSON.stringify({ok:true, proyecto:\""+n+"\"})); }\n  if (req.url === \"/api/datos\")  { res.writeHead(200, {\"Content-Type\":\"application/json\"}); return res.end(JSON.stringify(datos)); }\n  res.writeHead(404, {\"Content-Type\":\"application/json\"});\n  res.end(JSON.stringify({ok:false, motivo:\"ruta no existe: \"+req.url}));\n});\nserver.listen(4000, () => console.error(\"api "+n+" en :4000\"));\n"],
+["datos-demo.json","[{ \"id\": 1, \"nombre\": \"ejemplo\" }]\n"],
+["package.json","{\n  \"name\": \""+n+"\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": { \"start\": \"node server.mjs\" }\n}\n"],
+["LEE-ME.txt","api "+n+": node server.mjs → http://localhost:4000/api/salud\n"]];}
+function C(n){var Name=n.replace(/(^|[-_])([a-z])/g,function(_,a,b){return b.toUpperCase();}).replace(/[-_]/g,"");
+return[["components/"+Name+".jsx","// "+Name+".jsx — componente react limpio, props declaradas.\nexport function "+Name+"({ titulo = \""+Name+"\", children }) {\n  return (\n    <section className=\""+n+"\">\n      <h2>{titulo}</h2>\n      <div>{children}</div>\n    </section>\n  );\n}\nexport default "+Name+";\n"]];}
+var T={web:P,api:A,componente:C};
+H["embudo.crear"]=async function(a){
+  var tipo=String(a.tipo||(typeof a.texto==="string"?a.texto.split(" ")[0]:"")||"").toLowerCase();
+  var nombre=slug(a.nombre||(typeof a.texto==="string"?a.texto.split(" ").slice(1).join("-"):"")||a.texto);
+  if(!T[tipo])return{ok:false,motivo:"tipo «"+(a.tipo||"")+"» desconocido: usa web|api|componente (con el nombre detrás, si vienes de /embudo)"};
+  var creados=[];
+  for(const par of T[tipo](nombre)){ await call("workspace.writeFile",{path:par[0],content:par[1]}); creados.push(par[0]); }
+  var r={creados:creados,siguiente:tipo==="web"?"/pintar #color y /criticar":tipo==="api"?"node server.mjs y /smoke":"/rutas para vigilar el import"};
+  out(tipo+" · "+nombre+": "+creados.join(", "));
+  return r;
+};
+document.getElementById("go").onclick=function(){H["embudo.crear"]({tipo:document.getElementById("tipo").value,nombre:document.getElementById("nombre").value}).then(out);};
+</script>
+</body></html>

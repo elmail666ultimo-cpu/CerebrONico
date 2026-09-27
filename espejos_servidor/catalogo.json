@@ -1,0 +1,314 @@
+{
+  "version": "espejos-servidor v1",
+  "nota": "Fuente de verdad ÚNICA de los espejos especializados por tipo de servidor de datos. Las señales van en minúsculas y sin acentos: el enrutador quita acentos antes de comparar. El generador de respaldos y el router FastAPI leen ESTE archivo, nunca una copia a mano.",
+  "categorias": [
+    {
+      "id": "relacional",
+      "nombre": "Relacional (SQL)",
+      "icono": "🗄️",
+      "descripcion": "Bases SQL: PostgreSQL, MySQL, SQLite, SQLAlchemy. Tablas, claves foráneas, transacciones ACID, normalización."
+    },
+    {
+      "id": "documental",
+      "nombre": "Documental (NoSQL)",
+      "icono": "📄",
+      "descripcion": "Bases de documentos: MongoDB, Firestore. Colecciones, esquemas flexibles, desnormalización, índices."
+    },
+    {
+      "id": "clave_valor",
+      "nombre": "Clave-Valor / Caché",
+      "icono": "🔑",
+      "descripcion": "Almacenes clave-valor: Redis, Memcached. TTL, patrones de clave, memoria, expiración."
+    },
+    {
+      "id": "grafo",
+      "nombre": "Grafos",
+      "icono": "🕸️",
+      "descripcion": "Bases de grafos: Neo4j, Cypher. Nodos, aristas, relaciones, recorridos."
+    },
+    {
+      "id": "vectorial",
+      "nombre": "Vectorial / Embeddings",
+      "icono": "🧭",
+      "descripcion": "Bases vectoriales: pgvector, FAISS, Qdrant. Embeddings, similitud coseno, KNN/ANN."
+    },
+    {
+      "id": "serie_temporal",
+      "nombre": "Series temporales",
+      "icono": "📈",
+      "descripcion": "Bases de series de tiempo: TimescaleDB, InfluxDB. Métricas, retención, IoT, telemetría."
+    },
+    {
+      "id": "colas",
+      "nombre": "Colas y tareas",
+      "icono": "📨",
+      "descripcion": "Colas y brokers: RabbitMQ, Kafka, Celery. Productores, consumidores, workers, ack."
+    },
+    {
+      "id": "objetos",
+      "nombre": "Objetos / Blobs",
+      "icono": "📦",
+      "descripcion": "Almacenamiento de objetos: S3, MinIO. Buckets, prefijos, subida/descarga, ciclo de vida."
+    },
+    {
+      "id": "busqueda",
+      "nombre": "Búsqueda full-text",
+      "icono": "🔎",
+      "descripcion": "Motores de búsqueda: Elasticsearch, OpenSearch. Índice invertido, analizadores, relevancia."
+    },
+    {
+      "id": "realtime",
+      "nombre": "Tiempo real",
+      "icono": "⚡",
+      "descripcion": "Comunicación en tiempo real: WebSocket, SSE. Streaming, eventos, suscripciones, backpressure."
+    }
+  ],
+  "espejos": [
+    {
+      "id": "servidor.relacional",
+      "categoria": "relacional",
+      "nombre": "Espejo · Servidor Relacional",
+      "senales": [
+        "sql",
+        "postgres",
+        "postgresql",
+        "mysql",
+        "sqlite",
+        "tabla",
+        "tablas",
+        "llave foranea",
+        "llave primaria",
+        "clave foranea",
+        "transaccion",
+        "acid",
+        "join",
+        "indice",
+        "normalizacion",
+        "esquema",
+        "ddl",
+        "orm",
+        "sqlalchemy",
+        "relacional"
+      ],
+      "descripcion": "Genera DDL SQL determinista a partir de tablas y columnas, valida claves foráneas y avisa sobre normalización. No ejecuta SQL: solo estructura.",
+      "contrato": {
+        "entrada": "tablas: [{ nombre, columnas: [{ nombre, tipo, pk?, fk?: {tabla, columna} }] }]",
+        "salida": "ddl (texto), tablas, clavesForaneas, avisos ([]) | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.documental",
+      "categoria": "documental",
+      "nombre": "Espejo · Servidor Documental",
+      "senales": [
+        "mongodb",
+        "firestore",
+        "documento",
+        "documentos",
+        "nosql",
+        "coleccion",
+        "colecciones",
+        "bson",
+        "json",
+        "desnormalizacion",
+        "documental"
+      ],
+      "descripcion": "Diseña el esquema JSON de una colección, sugiere índices y marca qué campos conviene desnormalizar. Sin conexión: solo estructura.",
+      "contrato": {
+        "entrada": "coleccion: string · campos: [{ nombre, tipo, indice?, referenciado? }]",
+        "salida": "esquema (JSON), indices ([]), desnormalizar ([]), avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.clave_valor",
+      "categoria": "clave_valor",
+      "nombre": "Espejo · Servidor Clave-Valor",
+      "senales": [
+        "redis",
+        "cache",
+        "clave valor",
+        "clave-valor",
+        "ttl",
+        "memoria",
+        "expiracion",
+        "key value",
+        "memcached"
+      ],
+      "descripcion": "Valida un patrón de clave, recomienda TTL y estima memoria según accesos y tamaño de valor. Puro y sin red.",
+      "contrato": {
+        "entrada": "patron: string · ttlSegundos? · bytesPorValor? · accesosPorSegundo?",
+        "salida": "patron, valido, ttlRecomendado, memoriaEstimadaMB, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.grafo",
+      "categoria": "grafo",
+      "nombre": "Espejo · Servidor de Grafos",
+      "senales": [
+        "grafo",
+        "grafos",
+        "neo4j",
+        "cypher",
+        "nodo",
+        "nodos",
+        "arista",
+        "aristas",
+        "relaciones",
+        "recorrido",
+        "grado"
+      ],
+      "descripcion": "Cuenta nodos y aristas, detecta huérfanos y sugiere un patrón de consulta Cypher. Determinista y sin ejecución.",
+      "contrato": {
+        "entrada": "nodos: [{ nombre, etiqueta }] · aristas: [{ desde, hacia, tipo }]",
+        "salida": "nodos, aristas, huerfanos ([]), consultaCypher, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.vectorial",
+      "categoria": "vectorial",
+      "nombre": "Espejo · Servidor Vectorial",
+      "senales": [
+        "vector",
+        "vectores",
+        "embedding",
+        "embeddings",
+        "faiss",
+        "qdrant",
+        "pgvector",
+        "similitud",
+        "coseno",
+        "knn",
+        "ann",
+        "vectorial"
+      ],
+      "descripcion": "Estima memoria de un índice de vectores (float32) y recomienda el tipo de índice según el número de registros.",
+      "contrato": {
+        "entrada": "dimensiones: int · registros: int",
+        "salida": "bytesEstimados, indiceRecomendado, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.serie_temporal",
+      "categoria": "serie_temporal",
+      "nombre": "Espejo · Servidor de Series Temporales",
+      "senales": [
+        "serie temporal",
+        "series temporales",
+        "timescale",
+        "influxdb",
+        "metricas",
+        "telemetria",
+        "iot",
+        "muestras",
+        "retencion",
+        "timestamp",
+        "serie_temporal"
+      ],
+      "descripcion": "Estima el almacenamiento de una serie de tiempo y recomienda el intervalo de chunk y la retención.",
+      "contrato": {
+        "entrada": "puntosPorSegundo · retencionDias · bytesPorPunto?",
+        "salida": "puntosTotales, bytesEstimados, intervaloChunk, retencion, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.colas",
+      "categoria": "colas",
+      "nombre": "Espejo · Servidor de Colas",
+      "senales": [
+        "cola",
+        "colas",
+        "rabbitmq",
+        "kafka",
+        "celery",
+        "productor",
+        "consumidor",
+        "mensajes",
+        "encolar",
+        "tarea",
+        "tareas",
+        "worker",
+        "workers",
+        "broker",
+        "ack"
+      ],
+      "descripcion": "Recomienda la topología de colas (número, prefetch y confirmación) a partir de productores y consumidores.",
+      "contrato": {
+        "entrada": "productores: int · consumidores: int · ackManual?",
+        "salida": "colas, prefetchPorConsumidor, confirmacion, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.objetos",
+      "categoria": "objetos",
+      "nombre": "Espejo · Servidor de Objetos",
+      "senales": [
+        "s3",
+        "minio",
+        "blob",
+        "blobs",
+        "objeto",
+        "objetos",
+        "archivo",
+        "archivos",
+        "almacenamiento",
+        "bucket",
+        "subir",
+        "descargar",
+        "multimedia"
+      ],
+      "descripcion": "Diseña la distribución de prefijos de un bucket y una política de ciclo de vida según archivos y tamaño medio.",
+      "contrato": {
+        "entrada": "archivos: int · tamanoPromedioMB: number",
+        "salida": "bucket, prefijos ([]), ciclosDeVida ([]), tamanoTotalGB, avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.busqueda",
+      "categoria": "busqueda",
+      "nombre": "Espejo · Servidor de Búsqueda",
+      "senales": [
+        "busqueda",
+        "buscar",
+        "indice invertido",
+        "full text",
+        "fulltext",
+        "elasticsearch",
+        "opensearch",
+        "relevancia",
+        "analizador",
+        "texto",
+        "buscador",
+        "match"
+      ],
+      "descripcion": "Sugiere el mapping y el analizador por campo para un motor full-text, con boosts de relevancia.",
+      "contrato": {
+        "entrada": "campos: [{ nombre, tipo }]",
+        "salida": "mapping ({}), analizadores ({}), boosts ({}), avisos | { ok:false, motivo }"
+      }
+    },
+    {
+      "id": "servidor.realtime",
+      "categoria": "realtime",
+      "nombre": "Espejo · Servidor en Tiempo Real",
+      "senales": [
+        "websocket",
+        "sse",
+        "tiempo real",
+        "realtime",
+        "streaming",
+        "stream",
+        "notificaciones",
+        "eventos",
+        "evento",
+        "suscripcion",
+        "suscripciones",
+        "colaborativo"
+      ],
+      "descripcion": "Recomienda el transporte (SSE/WebSocket) y estima conexiones y backpressure según clientes y mensajes por segundo.",
+      "contrato": {
+        "entrada": "clientes: int · mensajesPorSegundo: number",
+        "salida": "transporte, conexiones, mensajesTotales, avisos | { ok:false, motivo }"
+      }
+    }
+  ]
+}

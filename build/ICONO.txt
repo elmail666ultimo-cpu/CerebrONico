@@ -1,0 +1,20 @@
+ICONO — v0.9 (22-sep-2026). Arte nuevo a partir de cerebrochip.jpg, a pedido de Mario.
+Anterior: 20-sep-2026, a partir de cerebro3.jpg.
+
+Archivo: build/icon.png (2048x2048, maestro cuadrado, chip hexagonal con cerebro)
+Archivo: build/icon.ico (7 medidas: 16, 24, 32, 48, 64, 128 y 256)
+
+electron-builder usa build/icon.ico SI EXISTE; tiene prioridad sobre el png.
+El .ico se entrega hecho a mano y NO se deja que lo derive electron-builder,
+porque asi se controla que esten las siete medidas — un .ico de una sola
+medida es el que luego se ve borroso en la barra de tareas.
+
+El .ico se genero con build/icono/generar_icono.py (Python estandar: zlib y
+struct). No se anadio ninguna dependencia de imagen al proyecto: aqui no hay
+ImageMagick, Pillow, sharp ni ffmpeg, y meter uno para redimensionar cuatro
+imagenes habria sido peor que escribirlo.
+
+Para la INTERFAZ (no para el EXE):
+  public/icono-cerebronico.png  (256)  -> icono del producto en la cabecera
+  public/favicon.ico            (16/24/32/48) -> pestana del navegador
+  index.html los declara con <link rel="icon">; antes NO habia ninguno.
